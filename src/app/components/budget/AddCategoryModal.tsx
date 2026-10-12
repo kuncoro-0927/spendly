@@ -48,7 +48,7 @@ export function AddCategoryModal({
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center overflow-y-auto bg-black/40 p-5 scrollbar-hide">
       {" "}
-      <div className="my-auto flex max-h-[90vh] w-full max-w-md flex-col overflow-hidden rounded-2xl bg-white p-6">
+      <div className="my-auto flex max-h-[60vh] lg:max-h-[90vh] w-full max-w-md flex-col overflow-hidden rounded-2xl bg-white p-6">
         {/* Header */}{" "}
         <div className="mb-6 flex shrink-0 items-center justify-between">
           {" "}
