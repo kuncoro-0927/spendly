@@ -24,7 +24,7 @@ export function BudgetCategoryItem({
   onDelete,
 }: BudgetCategoryItemProps) {
   return (
-    <div className="flex items-center gap-4 rounded-xl border border-black/10 p-4">
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-xl border border-black/10 p-4 sm:flex-nowrap">
       <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-orange/15">
         <Icon
           icon={category.icon || "ph:house-light"}
@@ -35,11 +35,12 @@ export function BudgetCategoryItem({
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className="font-medium text-gray-900">{category.name}</p>
+        <p className="truncate font-medium text-gray-900">{category.name}</p>
         <p className="mt-0.5 text-xs text-[#6c6c6c]">Batas pengeluaran</p>
       </div>
 
-      <div className="relative w-44">
+      {/* Mobile: turun ke baris sendiri. Desktop: sejajar di tengah */}
+      <div className="relative order-last w-full sm:order-none sm:w-44">
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">
           IDR
         </span>

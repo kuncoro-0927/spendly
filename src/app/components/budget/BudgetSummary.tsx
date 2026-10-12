@@ -26,10 +26,10 @@ export function BudgetSummary({
   loading = false,
 }: BudgetSummaryProps) {
   return loading ? (
-    <section className="animate-pulse rounded-2xl bg-gray-100 p-6">
+    <section className="animate-pulse rounded-2xlp-6">
       <Skeleton className="mb-5 h-5 w-40" />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto scrollbar-hide [&>*]:w-[60%] [&>*]:shrink-0 [&>*]:snap-start lg:grid lg:grid-cols-3 lg:gap-4 lg:snap-none lg:overflow-visible lg:[&>*]:w-auto">
         {Array.from({ length: 3 }).map((_, index) => (
           <div key={index} className="rounded-xl bg-white/60 p-4">
             <div className="flex items-center gap-2">
@@ -44,10 +44,10 @@ export function BudgetSummary({
       </div>
     </section>
   ) : (
-    <section className="rounded-2xl border border-gray-100 bg-white p-6">
+    <section className=" bg-white">
       <h2 className="mb-5 font-semibold text-gray-900">Ringkasan Budget</h2>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto scrollbar-hide [&>*]:w-[60%] [&>*]:shrink-0 [&>*]:snap-start lg:grid lg:grid-cols-3 lg:gap-4 lg:snap-none lg:overflow-visible lg:[&>*]:w-auto">
         <div className="rounded-xl border border-black/10 p-4">
           <p className="flex items-center gap-2 text-base font-medium text-green-600">
             <span className="rounded-lg bg-green-50 p-2">

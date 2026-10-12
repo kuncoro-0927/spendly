@@ -21,7 +21,7 @@ export function BudgetCategoryList({
   loading = false,
 }: BudgetCategoryListProps) {
   return loading ? (
-    <section className="animate-pulse rounded-2xl bg-gray-100 p-6">
+    <section className="animate-pulse rounded-2xl">
       <div className="mb-6 flex items-center justify-between gap-4">
         <div className="flex-1">
           <Skeleton className="h-5 w-36" />
@@ -45,7 +45,7 @@ export function BudgetCategoryList({
       </div>
     </section>
   ) : (
-    <section className="rounded-2xl border border-gray-100 bg-white p-6">
+    <section className="rounded-2xl">
       <div className="mb-6 flex items-center justify-between gap-4">
         <div>
           <h2 className="font-semibold text-gray-900">Budget Kategori</h2>
@@ -60,7 +60,7 @@ export function BudgetCategoryList({
           className="flex cursor-pointer items-center gap-2 rounded-xl bg-orange px-4 py-2.5 text-sm text-white transition duration-300 hover:-translate-y-0.5 hover:shadow-sm"
         >
           <LuPlus size={14} />
-          Tambah kategori
+          <span className="hidden lg:block">Tambah kategori</span>
         </button>
       </div>
 

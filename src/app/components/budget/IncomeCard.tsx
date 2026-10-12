@@ -20,7 +20,7 @@ export function IncomeCard({
   loading = false,
 }: IncomeCardProps) {
   return loading ? (
-    <section className="animate-pulse rounded-2xl bg-gray-100 p-6">
+    <section className="animate-pulse rounded-2xl ">
       <div className="mb-4">
         <Skeleton className="h-5 w-40" />
         <Skeleton className="mt-2 h-4 w-64" />
@@ -29,7 +29,7 @@ export function IncomeCard({
       <Skeleton className="h-12 w-full rounded-xl" />
     </section>
   ) : (
-    <section className="rounded-2xl border border-gray-100 bg-white p-6">
+    <section className="">
       <div className="mb-4">
         <h2 className="font-semibold text-gray-900">Pendapatan Bulanan</h2>
 
