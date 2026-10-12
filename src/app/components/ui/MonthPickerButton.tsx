@@ -47,7 +47,7 @@ export default function MonthPicker({ month, year, onChange }: Props) {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-64 rounded-xl border border-gray-100 bg-white p-3 shadow-lg">
+        <div className="absolute left-0 lg:right-0 top-full z-50 mt-2 w-64 rounded-xl border border-gray-100 bg-white p-3 shadow-lg">
           <div className="mb-3 flex items-center justify-between">
             <button
               type="button"

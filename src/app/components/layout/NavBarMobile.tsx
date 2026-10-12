@@ -53,13 +53,13 @@ export default function NavBarMobile() {
   return (
     <header
       ref={ref}
-      className={`sticky top-0 z-99 border-b px-4 transition-all bg-white duration-300 lg:hidden ${
+      className={`sticky top-0 z-99 border-b px-6 transition-all bg-white duration-300 lg:hidden ${
         scrolled
           ? "border-black/10 bg-white/40 shadow-sm backdrop-blur-md"
           : "border-transparent bg-transparent"
       }`}
     >
-      <div className="flex h-14 items-center justify-between">
+      <div className="flex h-16 items-center justify-between">
         <Link href="/dashboard" className="text-lg font-semibold">
           Gemi
         </Link>

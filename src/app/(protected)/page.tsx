@@ -33,7 +33,7 @@ export default function Home() {
   const { categories, loading, summary } = useDashboard(month, year);
 
   return (
-    <div className="bg-white w-auto p-6 lg:rounded-xl">
+    <div className="bg-white w-auto p-6 lg:rounded-xl pb-40 lg:pb-6">
       {/* icon kategori */}
       <div className="flex items-stretch gap-3">
         <div className="btn-gradient-border flex items-center justify-center h-12 w-12 rounded-full">
@@ -89,7 +89,7 @@ export default function Home() {
       </div>
 
       {/* total income, tabungan, spent */}
-      <div className="flex w-full snap-x snap-mandatory gap-3 overflow-x-auto scrollbar-hide [&>*]:w-[60%] [&>*]:shrink-0 [&>*]:snap-start">
+      <div className="flex w-full lg:hidden snap-x snap-mandatory gap-3 overflow-x-auto scrollbar-hide [&>*]:w-[60%] [&>*]:shrink-0 [&>*]:snap-start">
         <TotalIncome />
         <TotalTabungan />
         <TotalSpent />
@@ -108,7 +108,7 @@ export default function Home() {
       <div className="mt-8">
         <span className="font-semibold">Lorem, ipsum dolor.</span>
 
-        <div className="mt-2 grid grid-cols-2 gap-3">
+        <div className="mt-2 grid-cols-1 grid lg:grid-cols-2 gap-3">
           {loading ? (
             Array.from({ length: 4 }).map((_, index) => (
               <div
