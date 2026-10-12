@@ -3,13 +3,14 @@
 import { useSearchParams } from "next/navigation";
 import { useDashboard } from "@/app/hooks/dashboard/useDashboard";
 import Skeleton from "../ui/Skeleton";
+import { useUser } from "@/app/hooks/user/useUser";
 export default function TotalBalanceCard() {
   const searchParams = useSearchParams();
 
   const now = new Date();
   const month = Number(searchParams.get("month")) || now.getMonth() + 1;
   const year = Number(searchParams.get("year")) || now.getFullYear();
-
+  const { name } = useUser();
   const { summary, loading } = useDashboard(month, year);
 
   const formatShortRupiah = (value: number = 0) => {
@@ -45,8 +46,8 @@ export default function TotalBalanceCard() {
   }
 
   return (
-    <div className="flex flex-col justify-between rounded-xl bg-linear-to-tr from-orange to-yellow p-5">
-      <span className="text-xl font-medium text-white">Hi, John!</span>
+    <div className="flex flex-col justify-between rounded-xl min-h-52 bg-linear-to-tr from-orange to-yellow p-5">
+      <span className="text-xl font-medium text-white">Hi, {name}!</span>
 
       <div className="mt-auto flex items-end justify-between gap-1">
         <div className="flex flex-col">

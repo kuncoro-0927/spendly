@@ -17,7 +17,7 @@ export default function SidebarNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="sticky top-8 h-fit rounded-2xl bg-white p-3">
+    <nav className="sticky hidden lg:block top-8 h-fit rounded-2xl bg-white p-3">
       <ul className="flex flex-col gap-1">
         <li className="mb-2 text-lg font-semibold">Spendly</li>
 

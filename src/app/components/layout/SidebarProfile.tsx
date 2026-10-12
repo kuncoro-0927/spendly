@@ -1,31 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { useDashboard } from "@/app/hooks/dashboard/useDashboard";
-import { useRouter } from "next/navigation";
+
 import Image from "next/image";
-import { PiChartLineUpLight, PiSignOutLight } from "react-icons/pi";
+import { PiSignOutLight } from "react-icons/pi";
 import { IoIosArrowDown } from "react-icons/io";
-import Skeleton from "../ui/Skeleton";
+
+import { useUser } from "@/app/hooks/user/useUser";
+
+import TotalIncome from "../dashboard/TotalIncome";
+import TotalTabungan from "../dashboard/TotalTabungan";
+import TotalSpent from "../dashboard/TotalSpent";
 export default function SidebarProfile() {
-  const searchParams = useSearchParams();
-
-  const now = new Date();
-  const month = Number(searchParams.get("month")) || now.getMonth() + 1;
-  const year = Number(searchParams.get("year")) || now.getFullYear();
-
-  const { summary, loading } = useDashboard(month, year);
-  const formatRupiah = (value: number) =>
-    new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      maximumFractionDigits: 0,
-    }).format(value);
+  const { name, email } = useUser();
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const router = useRouter();
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -74,10 +64,8 @@ export default function SidebarProfile() {
           />
 
           <div className="flex min-w-0 flex-1 flex-col">
-            <span className="text-sm font-medium">John Doe</span>
-            <span className="truncate text-xs text-[#6c6c6c]">
-              khitanhesthik@gmail.com
-            </span>
+            <span className="text-sm font-medium">{name}</span>
+            <span className="truncate text-xs text-[#6c6c6c]">{email}</span>
           </div>
           <IoIosArrowDown
             className={`shrink-0 text-lg text-gray-500 transition-transform duration-200 ${
@@ -98,7 +86,7 @@ export default function SidebarProfile() {
           <div className="border-b border-gray-100 px-3 py-2">
             <p className="text-xs text-gray-400">Signed in as</p>
             <p className="mt-1 truncate text-sm font-medium text-gray-800">
-              khitanhesthik@gmail.com
+              {email}
             </p>
           </div>
           <button
@@ -114,70 +102,13 @@ export default function SidebarProfile() {
       </div>
 
       {/* total income */}
-      <div className="mt-3 flex flex-col rounded-2xl bg-white p-6">
-        {loading ? (
-          <>
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="mt-3 h-8 w-40" />
-            <Skeleton className="mt-4 h-3 w-28" />
-          </>
-        ) : (
-          <>
-            <span className="text-sm font-medium">Total Income</span>
-            <span className="text-2xl font-semibold">
-              {formatRupiah(summary.income)}
-            </span>
-            <span className="mt-3 flex items-center gap-1 text-xs">
-              <PiChartLineUpLight className="text-sm text-green-600" />
-              <span className="text-green-600">+0,05%</span> bulan ini
-            </span>
-          </>
-        )}
-      </div>
+      <TotalIncome />
 
       {/* tabungan */}
-      <div className="mt-3 flex flex-col rounded-2xl bg-white p-6">
-        {loading ? (
-          <>
-            <Skeleton className="h-4 w-20" />
-            <Skeleton className="mt-3 h-8 w-40" />
-            <Skeleton className="mt-4 h-3 w-28" />
-          </>
-        ) : (
-          <>
-            <span className="text-sm font-medium">Tabungan</span>
-            <span className="text-2xl font-semibold">
-              {formatRupiah(summary.savings)}
-            </span>
-            <span className="mt-3 flex items-center gap-1 text-xs">
-              <PiChartLineUpLight className="text-sm text-green-600" />
-              <span className="text-green-600">+0,05%</span> bulan ini
-            </span>
-          </>
-        )}
-      </div>
+      <TotalTabungan />
 
       {/* total spent */}
-      <div className="mt-3 flex flex-col rounded-2xl bg-white p-6">
-        {loading ? (
-          <>
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="mt-3 h-8 w-40" />
-            <Skeleton className="mt-4 h-3 w-28" />
-          </>
-        ) : (
-          <>
-            <span className="text-sm font-medium">Total Spent</span>
-            <span className="text-2xl font-semibold">
-              {formatRupiah(summary.spending)}
-            </span>
-            <span className="mt-3 flex items-center gap-1 text-xs">
-              <PiChartLineUpLight className="text-sm text-green-600" />
-              <span className="text-green-600">+0,05%</span> bulan ini
-            </span>
-          </>
-        )}
-      </div>
+      <TotalSpent />
     </div>
   );
 }

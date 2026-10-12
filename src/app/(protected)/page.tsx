@@ -18,6 +18,10 @@ import { useDashboard } from "../hooks/dashboard/useDashboard";
 import MonthPicker from "../components/ui/MonthPickerButton";
 import Skeleton from "../components/ui/Skeleton";
 import TodayDate from "../components/dashboard/TodayDate";
+
+import TotalIncome from "../components/dashboard/TotalIncome";
+import TotalTabungan from "../components/dashboard/TotalTabungan";
+import TotalSpent from "../components/dashboard/TotalSpent";
 export default function Home() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -29,7 +33,7 @@ export default function Home() {
   const { categories, loading, summary } = useDashboard(month, year);
 
   return (
-    <div className="bg-white w-auto p-6 rounded-xl">
+    <div className="bg-white w-auto p-6 lg:rounded-xl">
       {/* icon kategori */}
       <div className="flex items-stretch gap-3">
         <div className="btn-gradient-border flex items-center justify-center h-12 w-12 rounded-full">
@@ -56,9 +60,9 @@ export default function Home() {
           <CiMedicalCross className="text-xl text-black" />
         </div>
       </div>
-      <div className="mt-8 flex items-center justify-between">
+      <div className="mt-8 flex flex-col gap-3 lg:gap-0 lg:flex-row items-start lg:items-center justify-between">
         <div>
-          <h1 className="font-medium text-xl">
+          <h1 className="font-medium text-lg lg:text-xl">
             <TodayDate />
           </h1>
           <span className="text-sm text-[#6c6c6c]">
@@ -79,10 +83,18 @@ export default function Home() {
         />
       </div>
       {/* insight */}
-      <div className="grid grid-cols-2 gap-3 mt-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-8">
         <TotalBalanceCard />
         <InsightCard />
       </div>
+
+      {/* total income, tabungan, spent */}
+      <div className="flex w-full snap-x snap-mandatory gap-3 overflow-x-auto scrollbar-hide [&>*]:w-[60%] [&>*]:shrink-0 [&>*]:snap-start">
+        <TotalIncome />
+        <TotalTabungan />
+        <TotalSpent />
+      </div>
+
       {/* pembelian terakhir */}
       <div className="mt-8">
         <span className="font-semibold">Pengeluaran Terakhir</span>
