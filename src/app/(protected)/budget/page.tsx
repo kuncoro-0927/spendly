@@ -11,22 +11,16 @@ import { useBudget } from "../../hooks/budget/useBudget";
 export default function BudgetPage() {
   const budget = useBudget();
 
-  if (budget.loading) {
-    return (
-      <main className="flex-1 p-8">
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <p className="text-sm text-gray-500">Memuat budget...</p>
-        </div>
-      </main>
-    );
-  }
-
   return (
     <main className="flex-1">
       <BudgetHeader />
 
       <div className="max-w-5xl space-y-3">
-        <IncomeCard income={budget.income} onChange={budget.setIncome} />
+        <IncomeCard
+          income={budget.income}
+          onChange={budget.setIncome}
+          loading={budget.loading}
+        />
 
         <BudgetCategoryList
           categories={budget.categories}
@@ -34,12 +28,14 @@ export default function BudgetPage() {
           onBudgetChange={budget.handleBudgetChange}
           onAddCategory={() => budget.setShowAddCategory(true)}
           onDeleteCategory={budget.handleDeleteCategory}
+          loading={budget.loading}
         />
 
         <BudgetSummary
           income={Number(budget.income || 0)}
           totalBudget={budget.totalBudget}
           remaining={budget.remaining}
+          loading={budget.loading}
         />
 
         <SaveBudgetButton saving={budget.saving} onClick={budget.handleSave} />

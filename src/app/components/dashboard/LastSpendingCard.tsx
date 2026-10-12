@@ -2,7 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { useLastSpending } from "@/app/hooks/dashboard/useLastSpending";
-
+import Skeleton from "../ui/Skeleton";
 type LastSpendingCardProps = {
   month: number;
   year: number;
@@ -24,9 +24,28 @@ export default function LastSpendingCard({
   const { spendings, loading: spendingLoading } = useLastSpending(month, year);
 
   if (spendingLoading) {
-    return <p className="text-sm text-gray-500">Memuat transaksi...</p>;
-  }
+    return (
+      <div className="contents">
+        {Array.from({ length: 3 }).map((_, index) => (
+          <div
+            key={index}
+            className="flex w-full min-w-0 items-start justify-between gap-3 rounded-2xl bg-gray-100 p-4"
+          >
+            <div className="flex min-w-0 flex-1 items-center gap-3">
+              <Skeleton className="size-10 shrink-0" />
 
+              <div className="flex min-w-0 flex-1 flex-col gap-2">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-3 w-1/2" />
+              </div>
+            </div>
+
+            <Skeleton className="h-4 w-16 shrink-0" />
+          </div>
+        ))}
+      </div>
+    );
+  }
   if (spendings.length === 0) {
     return <p className="text-sm text-gray-500">Belum ada pengeluaran.</p>;
   }
@@ -65,11 +84,21 @@ export default function LastSpendingCard({
               </div>
             </div>
 
-            <span className="whitespace-nowrap text-sm font-semibold">
-              {new Intl.NumberFormat("id-ID", {
-                notation: "compact",
-                maximumFractionDigits: 1,
-              }).format(spending.amount)}
+            <span className="whitespace-nowrap leading-tight font-semibold">
+              <span className="text-[10px] font-normal text-[#6c6c6c] leading-tight">
+                IDR{" "}
+              </span>
+              <span className="text-sm text-orange">
+                {spending.amount >= 1000000
+                  ? `${(spending.amount / 1000000).toLocaleString("id-ID", {
+                      maximumFractionDigits: 1,
+                    })} Jt`
+                  : spending.amount >= 1000
+                    ? `${(spending.amount / 1000).toLocaleString("id-ID", {
+                        maximumFractionDigits: 1,
+                      })}K`
+                    : spending.amount.toLocaleString("id-ID")}
+              </span>
             </span>
           </div>
         );

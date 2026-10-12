@@ -33,7 +33,7 @@ export default function MonthPicker({ month, year, onChange }: Props) {
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm hover:border-gray-300"
+        className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm cursor-pointer hover:border-gray-300"
       >
         <PiCalendarBlankLight className="text-lg text-[#6c6c6c]" />
         <span className="font-medium">
@@ -52,7 +52,7 @@ export default function MonthPicker({ month, year, onChange }: Props) {
             <button
               type="button"
               onClick={() => onChange(month, year - 1)}
-              className="rounded-lg px-3 py-1.5 hover:bg-gray-100"
+              className="rounded-lg px-3 py-1.5 hover:bg-gray cursor-pointer"
             >
               &larr;
             </button>
@@ -62,7 +62,7 @@ export default function MonthPicker({ month, year, onChange }: Props) {
             <button
               type="button"
               onClick={() => onChange(month, year + 1)}
-              className="rounded-lg px-3 py-1.5 hover:bg-gray-100"
+              className="rounded-lg px-3 py-1.5 hover:bg-gray cursor-pointer"
             >
               &rarr;
             </button>
@@ -77,7 +77,7 @@ export default function MonthPicker({ month, year, onChange }: Props) {
                   onChange(index, year);
                   setIsOpen(false);
                 }}
-                className={`rounded-lg px-2 py-2 text-xs transition-colors ${
+                className={`rounded-lg px-2 py-2 text-xs transition-colors cursor-pointer ${
                   month === index
                     ? "bg-orange text-white"
                     : "text-gray-600 hover:bg-orange/10 hover:text-orange"

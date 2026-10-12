@@ -16,6 +16,8 @@ import LastSpendingCard from "../components/dashboard/LastSpendingCard";
 import BudgetCard from "../components/dashboard/BudgetCard";
 import { useDashboard } from "../hooks/dashboard/useDashboard";
 import MonthPicker from "../components/ui/MonthPickerButton";
+import Skeleton from "../components/ui/Skeleton";
+import TodayDate from "../components/dashboard/TodayDate";
 export default function Home() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -25,10 +27,6 @@ export default function Home() {
   const year = Number(searchParams.get("year")) || now.getFullYear();
 
   const { categories, loading, summary } = useDashboard(month, year);
-
-  if (loading) {
-    return <div>Memuat dashboard...</div>;
-  }
 
   return (
     <div className="bg-white w-auto p-6 rounded-xl">
@@ -58,12 +56,13 @@ export default function Home() {
           <CiMedicalCross className="text-xl text-black" />
         </div>
       </div>
-
       <div className="mt-8 flex items-center justify-between">
         <div>
-          <h1 className="font-medium text-xl">Rabu, 7 Oktober 2026</h1>
+          <h1 className="font-medium text-xl">
+            <TodayDate />
+          </h1>
           <span className="text-sm text-[#6c6c6c]">
-            Lorem ipsum dolor sit, amet consectetur adipisicing.
+            Pantau pengeluaranmu dan jaga anggaran tetap aman.
           </span>
         </div>
         <MonthPicker
@@ -79,16 +78,12 @@ export default function Home() {
           }}
         />
       </div>
-
       {/* insight */}
-
       <div className="grid grid-cols-2 gap-3 mt-8">
         <TotalBalanceCard />
         <InsightCard />
       </div>
-
       {/* pembelian terakhir */}
-
       <div className="mt-8">
         <span className="font-semibold">Pengeluaran Terakhir</span>
 
@@ -101,8 +96,30 @@ export default function Home() {
       <div className="mt-8">
         <span className="font-semibold">Lorem, ipsum dolor.</span>
 
-        <div className="grid grid-cols-2 gap-3 mt-2">
-          {categories.length > 0 ? (
+        <div className="mt-2 grid grid-cols-2 gap-3">
+          {loading ? (
+            Array.from({ length: 4 }).map((_, index) => (
+              <div
+                key={index}
+                className="flex flex-col gap-6 rounded-2xl bg-gray-100 p-4"
+              >
+                <div className="flex items-center gap-3">
+                  <Skeleton className="size-10 shrink-0" />
+
+                  <div className="flex flex-1 flex-col gap-2">
+                    <Skeleton className="h-4 w-2/3" />
+                    <Skeleton className="h-3 w-1/2" />
+                  </div>
+                </div>
+
+                <Skeleton className="h-7 w-3/4" />
+                <Skeleton className="h-2 w-full rounded-full" />
+                <Skeleton className="h-3 w-1/3" />
+              </div>
+            ))
+          ) : categories.length === 0 ? (
+            <p className="text-sm text-gray-500">Belum ada budget.</p>
+          ) : (
             categories.map((category) => (
               <BudgetCard
                 key={category.id}
@@ -111,10 +128,10 @@ export default function Home() {
                 spent={category.spent}
                 budget={category.budget}
                 hasBudget={category.hasBudget}
+                todaySpent={category.todaySpent}
+                yesterdaySpent={category.yesterdaySpent}
               />
             ))
-          ) : (
-            <p className="text-sm text-gray-500">Belum ada budget.</p>
           )}
         </div>
       </div>

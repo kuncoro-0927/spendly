@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { PiChartLineUpLight, PiSignOutLight } from "react-icons/pi";
 import { IoIosArrowDown } from "react-icons/io";
+import Skeleton from "../ui/Skeleton";
 export default function SidebarProfile() {
   const searchParams = useSearchParams();
 
@@ -14,7 +15,7 @@ export default function SidebarProfile() {
   const month = Number(searchParams.get("month")) || now.getMonth() + 1;
   const year = Number(searchParams.get("year")) || now.getFullYear();
 
-  const { summary } = useDashboard(month, year);
+  const { summary, loading } = useDashboard(month, year);
   const formatRupiah = (value: number) =>
     new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -58,10 +59,10 @@ export default function SidebarProfile() {
           type="button"
           onClick={() => setIsProfileOpen((prev) => !prev)}
           aria-expanded={isProfileOpen}
-          className={`flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition-all duration-200 ${
+          className={`flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition-all duration-200 cursor-pointer ${
             isProfileOpen
               ? "border-orange bg-orange/5"
-              : "border-transparent bg-white hover:border-gray-200 hover:shadow-sm"
+              : "border-transparent bg-white hover:border-black/20"
           }`}
         >
           <Image
@@ -104,7 +105,7 @@ export default function SidebarProfile() {
             type="button"
             onClick={handleLogout}
             disabled={isLoggingOut}
-            className="mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-gray-600 transition-colors cursor-pointer hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <PiSignOutLight className="text-xl" />
             <span>{isLoggingOut ? "Logging out..." : "Logout"}</span>
@@ -113,42 +114,69 @@ export default function SidebarProfile() {
       </div>
 
       {/* total income */}
-      <div className="mt-3 bg-white p-6 rounded-2xl flex flex-col">
-        <span className="text-sm font-medium">Total Income</span>
-        <span className="font-semibold text-2xl">
-          {" "}
-          {formatRupiah(summary.income)}
-        </span>
-        <span className="flex items-center gap-1 text-xs mt-3">
-          <PiChartLineUpLight className="text-sm text-green-600" />
-          <span className="text-green-600">+0,05% </span> bulan ini
-        </span>
+      <div className="mt-3 flex flex-col rounded-2xl bg-white p-6">
+        {loading ? (
+          <>
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="mt-3 h-8 w-40" />
+            <Skeleton className="mt-4 h-3 w-28" />
+          </>
+        ) : (
+          <>
+            <span className="text-sm font-medium">Total Income</span>
+            <span className="text-2xl font-semibold">
+              {formatRupiah(summary.income)}
+            </span>
+            <span className="mt-3 flex items-center gap-1 text-xs">
+              <PiChartLineUpLight className="text-sm text-green-600" />
+              <span className="text-green-600">+0,05%</span> bulan ini
+            </span>
+          </>
+        )}
+      </div>
+
+      {/* tabungan */}
+      <div className="mt-3 flex flex-col rounded-2xl bg-white p-6">
+        {loading ? (
+          <>
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="mt-3 h-8 w-40" />
+            <Skeleton className="mt-4 h-3 w-28" />
+          </>
+        ) : (
+          <>
+            <span className="text-sm font-medium">Tabungan</span>
+            <span className="text-2xl font-semibold">
+              {formatRupiah(summary.savings)}
+            </span>
+            <span className="mt-3 flex items-center gap-1 text-xs">
+              <PiChartLineUpLight className="text-sm text-green-600" />
+              <span className="text-green-600">+0,05%</span> bulan ini
+            </span>
+          </>
+        )}
       </div>
 
       {/* total spent */}
-      <div className="mt-3 bg-white p-6 rounded-2xl flex flex-col">
-        <span className="text-sm font-medium">Tabungan</span>
-        <span className="font-semibold text-2xl">
-          {" "}
-          {formatRupiah(summary.savings)}
-        </span>
-        <span className="flex items-center gap-1 text-xs mt-3">
-          <PiChartLineUpLight className="text-sm text-green-600" />
-          <span className="text-green-600">+0,05% </span> bulan ini
-        </span>
-      </div>
-
-      {/* total spent */}
-      <div className="mt-3 bg-white p-6 rounded-2xl flex flex-col">
-        <span className="text-sm font-medium">Total Spent</span>
-        <span className="font-semibold text-2xl">
-          {" "}
-          {formatRupiah(summary.spending)}
-        </span>
-        <span className="flex items-center gap-1 text-xs mt-3">
-          <PiChartLineUpLight className="text-sm text-green-600" />
-          <span className="text-green-600">+0,05% </span> bulan ini
-        </span>
+      <div className="mt-3 flex flex-col rounded-2xl bg-white p-6">
+        {loading ? (
+          <>
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="mt-3 h-8 w-40" />
+            <Skeleton className="mt-4 h-3 w-28" />
+          </>
+        ) : (
+          <>
+            <span className="text-sm font-medium">Total Spent</span>
+            <span className="text-2xl font-semibold">
+              {formatRupiah(summary.spending)}
+            </span>
+            <span className="mt-3 flex items-center gap-1 text-xs">
+              <PiChartLineUpLight className="text-sm text-green-600" />
+              <span className="text-green-600">+0,05%</span> bulan ini
+            </span>
+          </>
+        )}
       </div>
     </div>
   );

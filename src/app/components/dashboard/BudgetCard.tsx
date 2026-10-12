@@ -6,6 +6,8 @@ type BudgetCategoryCardProps = {
   spent: number;
   budget: number;
   hasBudget: boolean;
+  todaySpent: number;
+  yesterdaySpent: number;
 };
 
 const formatShortRupiah = (value: number = 0) => {
@@ -30,6 +32,8 @@ export default function BudgetCard({
   spent = 0,
   budget = 0,
   hasBudget,
+  todaySpent = 0,
+  yesterdaySpent = 0,
 }: BudgetCategoryCardProps) {
   console.log("BudgetCard dirender:", { name, budget, hasBudget });
 
@@ -79,16 +83,33 @@ export default function BudgetCard({
           </span>
         </div>
 
-        <div className="h-2 w-full overflow-hidden rounded-full bg-gray">
-          <div
-            className="h-full rounded-full bg-linear-to-r from-orange to-yellow"
-            style={{ width: `${percentage}%` }}
-          />
+        <div className="flex flex-col">
+          <div className="flex justify-between items-center">
+            <span className="text-xs text-[#6c6c6c]">today</span>
+            <span className="bg-linear-to-r from-orange to-yellow bg-clip-text text-transparent font-medium text-sm">
+              {" "}
+              {formatShortRupiah(todaySpent)}
+            </span>
+          </div>
+
+          <div className="flex justify-between items-center">
+            <span className="text-xs text-[#6c6c6c]">yesterday</span>
+            <span className="bg-linear-to-r from-orange to-yellow bg-clip-text text-transparent font-medium text-sm">
+              {formatShortRupiah(yesterdaySpent)}
+            </span>
+          </div>
         </div>
 
-        <p className="mt-2 text-xs text-[#6c6c6c]">
-          {Math.round(percentage)}% digunakan
-        </p>
+        <div className="flex items-center gap-4">
+          <div className="h-2 w-full overflow-hidden rounded-full bg-gray">
+            <div
+              className="h-full rounded-full bg-linear-to-r from-orange to-yellow"
+              style={{ width: `${percentage}%` }}
+            />
+          </div>
+
+          <p className=" text-xs text-[#6c6c6c]">{Math.round(percentage)}%</p>
+        </div>
       </div>
     </div>
   ) : (

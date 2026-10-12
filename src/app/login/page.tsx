@@ -4,7 +4,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { LuWallet } from "react-icons/lu";
-
+import Link from "next/link";
 export default function LoginPage() {
   const router = useRouter();
 
@@ -96,6 +96,16 @@ export default function LoginPage() {
 
         <p className="text-center text-xs text-gray-400 mt-5">
           Spendly — Personal Finance Tracker
+        </p>
+
+        <p className="mt-6 text-center text-sm text-[#6c6c6c]">
+          Belum punya akun?{" "}
+          <Link
+            href="/register"
+            className="font-medium text-orange hover:underline"
+          >
+            Daftar
+          </Link>
         </p>
       </div>
     </main>

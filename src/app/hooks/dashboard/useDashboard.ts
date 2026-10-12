@@ -11,6 +11,8 @@ type DashboardCategory = {
   budget: number;
   spent: number;
   hasBudget: boolean;
+  todaySpent: number;
+  yesterdaySpent: number;
 };
 
 export const useDashboard = (month: number, year: number) => {
@@ -22,6 +24,7 @@ export const useDashboard = (month: number, year: number) => {
     spending: 0,
     remaining: 0,
     savings: 0,
+    totalBudget: 0,
   });
 
   const fetchDashboard = useCallback(async () => {
@@ -39,6 +42,7 @@ export const useDashboard = (month: number, year: number) => {
           spending: 0,
           remaining: 0,
           savings: 0,
+          totalBudget: 0,
         });
         return;
       }
@@ -101,15 +105,29 @@ export const useDashboard = (month: number, year: number) => {
 
       const { data: transactionData, error: transactionError } = await supabase
         .from("transactions")
-        .select("category_id, amount")
+        .select("category_id, amount, transaction_date")
         .eq("user_id", user.id)
         .gte("transaction_date", startDate)
         .lt("transaction_date", endDate);
-
       if (transactionError) {
         console.error("GET TRANSACTIONS:", transactionError.message);
         return;
       }
+
+      const today = new Date();
+      const yesterday = new Date();
+      yesterday.setDate(today.getDate() - 1);
+
+      const formatDate = (date: Date) => {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, "0");
+        const d = String(date.getDate()).padStart(2, "0");
+
+        return `${y}-${m}-${d}`;
+      };
+
+      const todayDate = formatDate(today);
+      const yesterdayDate = formatDate(yesterday);
 
       const result = categoryData.map((category) => {
         const budgetData = budgetCategories.find(
@@ -124,6 +142,29 @@ export const useDashboard = (month: number, year: number) => {
               0,
             ) || 0;
 
+        const categoryTransactions = (transactionData || []).filter(
+          (transaction) => transaction.category_id === category.id,
+        );
+
+        const todaySpent = categoryTransactions
+          .filter(
+            (transaction) =>
+              transaction.transaction_date?.slice(0, 10) === todayDate,
+          )
+          .reduce(
+            (total, transaction) => total + Number(transaction.amount || 0),
+            0,
+          );
+
+        const yesterdaySpent = categoryTransactions
+          .filter(
+            (transaction) =>
+              transaction.transaction_date?.slice(0, 10) === yesterdayDate,
+          )
+          .reduce(
+            (total, transaction) => total + Number(transaction.amount || 0),
+            0,
+          );
         return {
           id: category.id,
           name: category.name,
@@ -131,6 +172,8 @@ export const useDashboard = (month: number, year: number) => {
           budget: Number(budgetData?.amount || 0),
           spent,
           hasBudget: budgetData !== undefined && budgetData !== null,
+          todaySpent,
+          yesterdaySpent,
         };
       });
       const activeCategoryIds = new Set(
@@ -155,6 +198,7 @@ export const useDashboard = (month: number, year: number) => {
         spending: totalSpending,
         remaining: remainingBudget,
         savings,
+        totalBudget,
       });
 
       setCategories(result);
