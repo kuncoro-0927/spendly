@@ -32,7 +32,7 @@ export function BudgetSummary({
             <span className="p-2 rounded-lg bg-green-50">
               <LuArrowDownToLine className="text-green-600" />
             </span>
-            Pendapatan
+            Total Income
           </p>
 
           <p className="text-lg font-semibold mt-5">{formatRupiah(income)}</p>
@@ -56,7 +56,7 @@ export function BudgetSummary({
             <span className="p-2 rounded-lg bg-blue-50">
               <TbMoneybag className="text-blue-600" />
             </span>
-            Sisa Income
+           Tabungan
           </p>
 
           <p

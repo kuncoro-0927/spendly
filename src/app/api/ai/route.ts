@@ -34,11 +34,9 @@ export async function POST(request: Request) {
     // 2. Ambil kategori milik user
     const { data: categories, error: categoryError } = await supabase
       .from("categories")
-      .select("id, name")
+      .select("id, name, icon")
       .eq("user_id", user.id)
-      .order("created_at", {
-        ascending: true,
-      });
+      .order("created_at", { ascending: true });
 
     if (categoryError) {
       console.error("GET CATEGORIES:", categoryError);
@@ -138,7 +136,16 @@ export async function POST(request: Request) {
 
     const result = JSON.parse(content);
 
-    return NextResponse.json(result);
+    const validIds = new Set(categories.map((c) => c.id));
+
+    const transactions = (result.transactions ?? []).map(
+      (t: { category_id: string }) => ({
+        ...t,
+        category_id: validIds.has(t.category_id) ? t.category_id : "",
+      }),
+    );
+
+    return NextResponse.json({ transactions, categories });
   } catch (error) {
     console.error("AI ERROR:", error);
 

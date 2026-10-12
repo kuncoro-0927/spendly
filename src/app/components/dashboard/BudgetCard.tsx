@@ -1,26 +1,11 @@
-import {
-  PiHouseLight,
-  PiHamburgerLight,
-  PiCarLight,
-  PiSoccerBallLight,
-  PiShoppingBagLight,
-} from "react-icons/pi";
-import { CiMedicalCross } from "react-icons/ci";
-
-const iconMap: Record<string, React.ElementType> = {
-  house: PiHouseLight,
-  hamburger: PiHamburgerLight,
-  car: PiCarLight,
-  soccer: PiSoccerBallLight,
-  "shopping-bag": PiShoppingBagLight,
-  medical: CiMedicalCross,
-};
+import { Icon } from "@iconify/react";
 
 type BudgetCategoryCardProps = {
   name: string;
   icon: string;
   spent: number;
   budget: number;
+  hasBudget: boolean;
 };
 
 const formatShortRupiah = (value: number = 0) => {
@@ -44,19 +29,39 @@ export default function BudgetCard({
   icon,
   spent = 0,
   budget = 0,
+  hasBudget,
 }: BudgetCategoryCardProps) {
-  const Icon = iconMap[icon];
+  console.log("BudgetCard dirender:", { name, budget, hasBudget });
+
+  const iconName = icon.includes(":")
+    ? icon
+    : (
+        {
+          house: "ph:house-light",
+          hamburger: "ph:hamburger-light",
+          car: "ph:car-light",
+          soccer: "ph:football-light",
+          "shopping-bag": "ph:shopping-bag-light",
+          medical: "ph:first-aid-kit-light",
+        } as Record<string, string>
+      )[icon] || "ph:house-light";
 
   const percentage = budget > 0 ? Math.min((spent / budget) * 100, 100) : 0;
-  return (
-    <div className="flex flex-col border border-black/20 rounded-2xl p-4 gap-6">
-      <div className="flex items-center gap-3 w-full">
-        <span className="bg-orange/10 flex items-center justify-center rounded-lg h-10 w-10 shrink-0">
-          {Icon && <Icon className="text-orange" />}
+
+  return hasBudget ? (
+    <div className="flex flex-col gap-6 rounded-2xl border border-black/20 p-4 duration-300 hover:border-orange hover:shadow-md">
+      <div className="flex w-full items-center gap-3">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-orange/10">
+          <Icon
+            icon={iconName}
+            width={22}
+            height={22}
+            className="text-orange"
+          />
         </span>
 
-        <div className="flex flex-col w-full">
-          <span className="font-medium text-sm leading-none">{name}</span>
+        <div className="flex w-full flex-col">
+          <span className="text-sm font-medium leading-none">{name}</span>
           <span className="text-sm text-[#6c6c6c]">Lorem ipsum dolor sit.</span>
         </div>
       </div>
@@ -65,7 +70,7 @@ export default function BudgetCard({
         <div className="flex items-baseline gap-1">
           <span className="text-xs text-[#6c6c6c]">IDR</span>
 
-          <span className="font-semibold text-2xl bg-linear-to-r from-orange to-yellow bg-clip-text text-transparent">
+          <span className="bg-linear-to-r from-orange to-yellow bg-clip-text text-2xl font-semibold text-transparent">
             {formatShortRupiah(spent)}
           </span>
 
@@ -74,7 +79,7 @@ export default function BudgetCard({
           </span>
         </div>
 
-        <div className="w-full h-2 rounded-full bg-gray overflow-hidden">
+        <div className="h-2 w-full overflow-hidden rounded-full bg-gray">
           <div
             className="h-full rounded-full bg-linear-to-r from-orange to-yellow"
             style={{ width: `${percentage}%` }}
@@ -86,5 +91,7 @@ export default function BudgetCard({
         </p>
       </div>
     </div>
+  ) : (
+    <p className="text-sm text-gray-500">Belum ada budget.</p>
   );
 }

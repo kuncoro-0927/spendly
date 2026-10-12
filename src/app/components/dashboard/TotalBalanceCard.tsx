@@ -1,18 +1,41 @@
-export default function TotalBalanceCard() {
-  return (
-    <div className="p-5 flex flex-col justify-between bg-linear-to-tr from-orange to-yellow  rounded-xl">
-      <span className="text-white font-medium text-xl">Hi, John!</span>
+"use client";
 
-      <div className="mt-auto flex items-end gap-1 justify-between">
+import { useSearchParams } from "next/navigation";
+import { useDashboard } from "@/app/hooks/dashboard/useDashboard";
+
+export default function TotalBalanceCard() {
+  const searchParams = useSearchParams();
+
+  const now = new Date();
+  const month = Number(searchParams.get("month")) || now.getMonth() + 1;
+  const year = Number(searchParams.get("year")) || now.getFullYear();
+
+  const { summary } = useDashboard(month, year);
+
+  const formatRupiah = (value: number) =>
+    new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      maximumFractionDigits: 0,
+    }).format(value);
+
+  return (
+    <div className="flex flex-col justify-between rounded-xl bg-linear-to-tr from-orange to-yellow p-5">
+      <span className="text-xl font-medium text-white">Hi, John!</span>
+
+      <div className="mt-auto flex items-end justify-between gap-1">
         <div className="flex flex-col">
-          <span className="text-sm text-white">lorem ipsum dolor</span>
+          <span className="text-sm text-white">Sisa anggaran</span>
           <span className="text-2xl font-semibold text-white">
-            IDR 3.000.000
+            {formatRupiah(summary.remaining)}
           </span>
         </div>
 
-        <div className="px-2 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-xs text-white">
-          + 0.4% today
+        <div className="rounded-full bg-white/20 px-2 py-1.5 text-xs text-white backdrop-blur-sm">
+          {new Intl.DateTimeFormat("id-ID", {
+            month: "short",
+            year: "numeric",
+          }).format(new Date(year, month - 1, 1))}
         </div>
       </div>
     </div>

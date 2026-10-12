@@ -1,12 +1,12 @@
 "use client";
 
-import { BudgetHeader } from "../components/budget/BudgetHeader";
-import { IncomeCard } from "../components/budget/IncomeCard";
-import { BudgetCategoryList } from "../components/budget/BudgetCategoryList";
-import { BudgetSummary } from "../components/budget/BudgetSummary";
-import { AddCategoryModal } from "../components/budget/AddCategoryModal";
-import { SaveBudgetButton } from "../components/budget/SaveBudgetButton";
-import { useBudget } from "../hooks/budget/useBudget";
+import { BudgetHeader } from "../../components/budget/BudgetHeader";
+import { IncomeCard } from "../../components/budget/IncomeCard";
+import { BudgetCategoryList } from "../../components/budget/BudgetCategoryList";
+import { BudgetSummary } from "../../components/budget/BudgetSummary";
+import { AddCategoryModal } from "../../components/budget/AddCategoryModal";
+import { SaveBudgetButton } from "../../components/budget/SaveBudgetButton";
+import { useBudget } from "../../hooks/budget/useBudget";
 
 export default function BudgetPage() {
   const budget = useBudget();

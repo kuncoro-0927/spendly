@@ -10,11 +10,19 @@ type DashboardCategory = {
   icon: string;
   budget: number;
   spent: number;
+  hasBudget: boolean;
 };
 
-export const useDashboard = () => {
+export const useDashboard = (month: number, year: number) => {
   const [categories, setCategories] = useState<DashboardCategory[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [summary, setSummary] = useState({
+    income: 0,
+    spending: 0,
+    remaining: 0,
+    savings: 0,
+  });
 
   const fetchDashboard = useCallback(async () => {
     setLoading(true);
@@ -26,17 +34,19 @@ export const useDashboard = () => {
 
       if (!user) {
         setCategories([]);
+        setSummary({
+          income: 0,
+          spending: 0,
+          remaining: 0,
+          savings: 0,
+        });
         return;
       }
 
-      const now = new Date();
-      const month = now.getMonth() + 1;
-      const year = now.getFullYear();
-
-      // Ambil budget bulan ini
+      // Ambil budget sesuai bulan dan tahun yang dipilih
       const { data: budget, error: budgetError } = await supabase
         .from("budgets")
-        .select("id")
+        .select("id, income")
         .eq("user_id", user.id)
         .eq("month", month)
         .eq("year", year)
@@ -62,7 +72,10 @@ export const useDashboard = () => {
       if (!categoryData) return;
 
       // Ambil budget setiap kategori
-      let budgetCategories: { category_id: string; amount: number }[] = [];
+      let budgetCategories: {
+        category_id: string;
+        amount: number;
+      }[] = [];
 
       if (budget) {
         const { data, error } = await supabase
@@ -78,7 +91,7 @@ export const useDashboard = () => {
         budgetCategories = data || [];
       }
 
-      // Ambil transaksi bulan ini
+      // Ambil transaksi sesuai bulan dan tahun yang dipilih
       const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
 
       const nextMonth = new Date(year, month, 1);
@@ -117,7 +130,31 @@ export const useDashboard = () => {
           icon: category.icon,
           budget: Number(budgetData?.amount || 0),
           spent,
+          hasBudget: budgetData !== undefined && budgetData !== null,
         };
+      });
+      const activeCategoryIds = new Set(
+        categoryData.map((category) => category.id),
+      );
+
+      const totalBudget = budgetCategories
+        .filter((item) => activeCategoryIds.has(item.category_id))
+        .reduce((total, item) => total + Number(item.amount || 0), 0);
+
+      const totalSpending = (transactionData || []).reduce(
+        (total, item) => total + Number(item.amount || 0),
+        0,
+      );
+
+      const income = Number(budget?.income || 0);
+      const savings = Math.max(0, income - totalBudget);
+      const remainingBudget = totalBudget - totalSpending;
+
+      setSummary({
+        income,
+        spending: totalSpending,
+        remaining: remainingBudget,
+        savings,
       });
 
       setCategories(result);
@@ -126,24 +163,23 @@ export const useDashboard = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [month, year]);
 
   useEffect(() => {
     fetchDashboard();
   }, [fetchDashboard]);
 
   useEffect(() => {
-    const handleTransactionsUpdated = () => {
+    const handleDataUpdated = () => {
       fetchDashboard();
     };
 
-    window.addEventListener("transactions-updated", handleTransactionsUpdated);
+    window.addEventListener("transactions-updated", handleDataUpdated);
+    window.addEventListener("budget-updated", handleDataUpdated);
 
     return () => {
-      window.removeEventListener(
-        "transactions-updated",
-        handleTransactionsUpdated,
-      );
+      window.removeEventListener("transactions-updated", handleDataUpdated);
+      window.removeEventListener("budget-updated", handleDataUpdated);
     };
   }, [fetchDashboard]);
 
@@ -151,5 +187,6 @@ export const useDashboard = () => {
     categories,
     loading,
     fetchDashboard,
+    summary,
   };
 };

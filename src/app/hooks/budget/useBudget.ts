@@ -29,7 +29,7 @@ export const useBudget = () => {
 
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
-  const [newCategoryIcon, setNewCategoryIcon] = useState("house");
+  const [newCategoryIcon, setNewCategoryIcon] = useState("");
   const [addingCategory, setAddingCategory] = useState(false);
 
   const totalBudget = Object.values(budgetValues).reduce(
@@ -189,6 +189,8 @@ export const useBudget = () => {
         }
       }
 
+      window.dispatchEvent(new Event("budget-updated"));
+
       alert("Budget berhasil disimpan!");
     } finally {
       setSaving(false);
@@ -249,7 +251,7 @@ export const useBudget = () => {
       }
 
       setNewCategoryName("");
-      setNewCategoryIcon("house");
+      setNewCategoryIcon("");
       setShowAddCategory(false);
     } finally {
       setAddingCategory(false);
@@ -261,18 +263,64 @@ export const useBudget = () => {
 
     if (!confirmed) return;
 
-    const { error } = await supabase
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      alert("Silakan login terlebih dahulu.");
+      return;
+    }
+
+    // Cari budget bulan dan tahun saat ini
+    const now = new Date();
+    const month = now.getMonth() + 1;
+    const year = now.getFullYear();
+
+    const { data: budget, error: budgetError } = await supabase
+      .from("budgets")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("month", month)
+      .eq("year", year)
+      .maybeSingle();
+
+    if (budgetError) {
+      console.error("GET BUDGET:", budgetError.message);
+      alert("Gagal mengambil data budget.");
+      return;
+    }
+
+    // Hapus alokasi budget kategori terlebih dahulu
+    if (budget) {
+      const { error: budgetCategoryError } = await supabase
+        .from("budget_categories")
+        .delete()
+        .eq("budget_id", budget.id)
+        .eq("category_id", category.id);
+
+      if (budgetCategoryError) {
+        console.error("DELETE BUDGET CATEGORY:", budgetCategoryError.message);
+        alert("Budget kategori gagal dihapus.");
+        return;
+      }
+    }
+
+    // Hapus kategori
+    const { error: categoryError } = await supabase
       .from("categories")
       .delete()
-      .eq("id", category.id);
+      .eq("id", category.id)
+      .eq("user_id", user.id);
 
-    if (error) {
-      console.error("DELETE CATEGORY:", error.message);
-
+    if (categoryError) {
+      console.error("DELETE CATEGORY:", categoryError.message);
       alert("Kategori gagal dihapus.");
       return;
     }
 
+    // Perbarui state lokal
     setCategories((prev) => prev.filter((item) => item.id !== category.id));
 
     setBudgetValues((prev) => {
@@ -280,6 +328,9 @@ export const useBudget = () => {
       delete updated[category.id];
       return updated;
     });
+
+    // Perbarui dashboard dan sidebar
+    window.dispatchEvent(new Event("budget-updated"));
   };
 
   return {

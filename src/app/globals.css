@@ -1,5 +1,5 @@
 @import "tailwindcss";
-
+@import "tailwind-scrollbar-hide/v4";
 :root {
   --background: #f3f4f6;
   --foreground: #2a1a0e;
