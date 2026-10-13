@@ -22,14 +22,16 @@ import TodayDate from "../components/dashboard/TodayDate";
 import TotalIncome from "../components/dashboard/TotalIncome";
 import TotalTabungan from "../components/dashboard/TotalTabungan";
 import TotalSpent from "../components/dashboard/TotalSpent";
+import { getCurrentPeriod } from "@/lib/period/period";
+import { usePeriodStartDay } from "@/lib/period/periodProvider";
 export default function Home() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const startDay = usePeriodStartDay();
+  const current = getCurrentPeriod(startDay);
 
-  const now = new Date();
-  const month = Number(searchParams.get("month")) || now.getMonth() + 1;
-  const year = Number(searchParams.get("year")) || now.getFullYear();
-
+  const month = Number(searchParams.get("month")) || current.month;
+  const year = Number(searchParams.get("year")) || current.year;
   const { categories, loading, summary } = useDashboard(month, year);
 
   return (

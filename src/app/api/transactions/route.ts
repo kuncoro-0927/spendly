@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentPeriod } from "@/lib/period/period";
 
 type TransactionInput = {
   description: string;
@@ -8,10 +9,64 @@ type TransactionInput = {
   transaction_date: string;
 };
 
+type SupabaseServer = Awaited<ReturnType<typeof createClient>>;
+
+const isValidDate = (value: unknown): value is string => {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return false;
+  }
+
+  const parsed = new Date(`${value}T00:00:00`);
+
+  // Menolak tanggal yang "meluap", misalnya 2026-02-30
+  return (
+    !Number.isNaN(parsed.getTime()) &&
+    parsed.toLocaleDateString("en-CA") === value
+  );
+};
+
+// Ambil budget periode itu, atau buat baru dengan income 0 kalau belum ada
+async function getOrCreateBudgetId(
+  supabase: SupabaseServer,
+  userId: string,
+  month: number,
+  year: number,
+): Promise<string> {
+  const find = () =>
+    supabase
+      .from("budgets")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("month", month)
+      .eq("year", year)
+      .maybeSingle();
+
+  const { data: existing, error: findError } = await find();
+  if (findError) throw findError;
+  if (existing) return existing.id;
+
+  const { data: created, error: insertError } = await supabase
+    .from("budgets")
+    .insert({ user_id: userId, month, year, income: 0 })
+    .select("id")
+    .single();
+
+  if (insertError) {
+    // Permintaan lain baru saja membuatnya (unique user_id, month, year)
+    if (insertError.code === "23505") {
+      const { data: retry, error: retryError } = await find();
+      if (retryError) throw retryError;
+      if (retry) return retry.id;
+    }
+    throw insertError;
+  }
+
+  return created.id;
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-
     const transactions = body.transactions as TransactionInput[];
 
     if (!Array.isArray(transactions) || transactions.length === 0) {
@@ -23,7 +78,6 @@ export async function POST(request: Request) {
 
     const supabase = await createClient();
 
-    // Ambil user yang sedang login
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -35,14 +89,16 @@ export async function POST(request: Request) {
     // Validasi transaksi
     for (const transaction of transactions) {
       if (
-        !transaction.description ||
+        typeof transaction.description !== "string" ||
+        !transaction.description.trim() ||
         typeof transaction.amount !== "number" ||
+        !Number.isFinite(transaction.amount) ||
         transaction.amount <= 0 ||
         !transaction.category_id ||
-        !transaction.transaction_date
+        !isValidDate(transaction.transaction_date)
       ) {
         return NextResponse.json(
-          { error: "Data transaksi tidak lengkap." },
+          { error: "Data transaksi tidak lengkap atau tidak valid." },
           { status: 400 },
         );
       }
@@ -75,87 +131,67 @@ export async function POST(request: Request) {
       );
     }
 
-    // Ambil budget berdasarkan tanggal transaksi
-    const budgetKeys = [
-      ...new Set(
-        transactions.map((transaction) => {
-          const date = new Date(`${transaction.transaction_date}T00:00:00`);
+    // Tanggal gajian user menentukan batas periode
+    const { data: settings, error: settingsError } = await supabase
+      .from("user_settings")
+      .select("period_start_day")
+      .eq("user_id", user.id)
+      .maybeSingle();
 
-          return {
-            month: date.getMonth() + 1,
-            year: date.getFullYear(),
-          };
-        }),
-      ),
-    ];
+    if (settingsError) {
+      console.error("GET USER SETTINGS:", settingsError);
 
-    const budgetIds = new Map<string, string>();
-
-    for (const budgetKey of budgetKeys) {
-      const { data: budget, error: budgetError } = await supabase
-        .from("budgets")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("month", budgetKey.month)
-        .eq("year", budgetKey.year)
-        .maybeSingle();
-
-      if (budgetError) {
-        console.error("GET BUDGET:", budgetError);
-
-        return NextResponse.json(
-          { error: "Gagal mengambil budget." },
-          { status: 500 },
-        );
-      }
-
-      if (!budget) {
-        return NextResponse.json(
-          {
-            error: `Budget untuk ${budgetKey.month}/${budgetKey.year} belum dibuat.`,
-          },
-          { status: 400 },
-        );
-      }
-
-      budgetIds.set(`${budgetKey.year}-${budgetKey.month}`, budget.id);
+      return NextResponse.json(
+        { error: "Gagal mengambil pengaturan periode." },
+        { status: 500 },
+      );
     }
 
-    // Siapkan data untuk insert
+    const startDay = settings?.period_start_day ?? 1;
+
+    const periodOf = (date: string) =>
+      getCurrentPeriod(startDay, new Date(`${date}T00:00:00`));
+
+    // Satu request bisa berisi tanggal dari periode berbeda,
+    // jadi siapkan budget untuk tiap periode yang muncul
+    const budgetIds = new Map<string, string>();
+
+    for (const transaction of transactions) {
+      const { month, year } = periodOf(transaction.transaction_date);
+      const key = `${year}-${month}`;
+
+      if (!budgetIds.has(key)) {
+        budgetIds.set(
+          key,
+          await getOrCreateBudgetId(supabase, user.id, month, year),
+        );
+      }
+    }
+
     const insertData = transactions.map((transaction) => {
-      const date = new Date(`${transaction.transaction_date}T00:00:00`);
-
-      const month = date.getMonth() + 1;
-      const year = date.getFullYear();
-
-      const budgetId = budgetIds.get(`${year}-${month}`);
+      const { month, year } = periodOf(transaction.transaction_date);
 
       return {
         user_id: user.id,
-        budget_id: budgetId,
+        budget_id: budgetIds.get(`${year}-${month}`)!,
         category_id: transaction.category_id,
-        description: transaction.description,
+        description: transaction.description.trim(),
         amount: transaction.amount,
         transaction_date: transaction.transaction_date,
         input_source: "ai",
       };
     });
 
-    // Simpan semua transaksi
     const { data, error } = await supabase
       .from("transactions")
       .insert(insertData)
       .select();
+
     if (error) {
       console.error("INSERT TRANSACTIONS:", error);
 
       return NextResponse.json(
-        {
-          error: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code,
-        },
+        { error: "Gagal menyimpan transaksi." },
         { status: 500 },
       );
     }

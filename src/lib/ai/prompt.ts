@@ -51,7 +51,12 @@ Aturan:
 20. Jika tidak ada transaksi pengeluaran yang dapat diidentifikasi, kembalikan array transactions kosong.
 
 21. Setiap kata dalam description harus diawali huruf kapital (Title Case).
-22. Contoh:
+22. Jika pengguna menyebut tanggal eksplisit (misalnya "tgl 5" atau "5 oktober"),
+tanggal itu selalu menang atas kata relatif seperti "kemarin" atau "tadi".
+"tgl 5" tanpa bulan berarti tanggal 5 di bulan dari "today".
+Jika tidak ada tanggal eksplisit, "kemarin" berarti today dikurangi satu hari
+dan "tadi" atau "hari ini" berarti today.
+23. Contoh:
 
 * "pagi saya makan nasi cabe ijo" → "Nasi Cabe Ijo"
 * "tadi beli kopi susu" → "Kopi Susu"

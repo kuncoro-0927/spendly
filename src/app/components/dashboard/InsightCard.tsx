@@ -5,14 +5,15 @@ import { useSearchParams } from "next/navigation";
 import { PiLightbulb } from "react-icons/pi";
 import Skeleton from "@/app/components/ui/Skeleton";
 import { useInsight } from "@/app/hooks/insight/useInsight";
-
+import { usePeriodStartDay } from "@/lib/period/periodProvider";
+import { getCurrentPeriod } from "@/lib/period/period";
 export default function InsightCard() {
   const searchParams = useSearchParams();
-  const now = new Date();
+  const startDay = usePeriodStartDay();
+  const current = getCurrentPeriod(startDay);
 
-  const month = Number(searchParams.get("month")) || now.getMonth() + 1;
-  const year = Number(searchParams.get("year")) || now.getFullYear();
-
+  const month = Number(searchParams.get("month")) || current.month;
+  const year = Number(searchParams.get("year")) || current.year;
   const { aiInsight: insights, loading, error } = useInsight(month, year);
 
   const containerRef = useRef<HTMLDivElement>(null);

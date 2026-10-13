@@ -1,9 +1,10 @@
 "use client";
 /* eslint-disable react-hooks/set-state-in-effect */
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
-
+import { getPeriodRange, toDateString } from "@/lib/period/period";
+import { usePeriodStartDay } from "@/lib/period/periodProvider";
 type DashboardCategory = {
   id: string;
   name: string;
@@ -15,19 +16,26 @@ type DashboardCategory = {
   yesterdaySpent: number;
 };
 
+const EMPTY_SUMMARY = {
+  income: 0,
+  spending: 0,
+  remaining: 0,
+  savings: 0,
+  totalBudget: 0,
+};
+
 export const useDashboard = (month: number, year: number) => {
+  const startDay = usePeriodStartDay();
+
   const [categories, setCategories] = useState<DashboardCategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [summary, setSummary] = useState(EMPTY_SUMMARY);
 
-  const [summary, setSummary] = useState({
-    income: 0,
-    spending: 0,
-    remaining: 0,
-    savings: 0,
-    totalBudget: 0,
-  });
+  // Penanda permintaan terbaru, supaya respons lama tidak menimpa yang baru
+  const requestId = useRef(0);
 
   const fetchDashboard = useCallback(async () => {
+    const id = ++requestId.current;
     setLoading(true);
 
     try {
@@ -35,19 +43,15 @@ export const useDashboard = (month: number, year: number) => {
         data: { user },
       } = await supabase.auth.getUser();
 
+      if (id !== requestId.current) return;
+
       if (!user) {
         setCategories([]);
-        setSummary({
-          income: 0,
-          spending: 0,
-          remaining: 0,
-          savings: 0,
-          totalBudget: 0,
-        });
+        setSummary(EMPTY_SUMMARY);
         return;
       }
 
-      // Ambil budget sesuai bulan dan tahun yang dipilih
+      // Budget periode yang dipilih (month dan year = bulan mulai periode)
       const { data: budget, error: budgetError } = await supabase
         .from("budgets")
         .select("id, income")
@@ -95,20 +99,16 @@ export const useDashboard = (month: number, year: number) => {
         budgetCategories = data || [];
       }
 
-      // Ambil transaksi sesuai bulan dan tahun yang dipilih
-      const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
-
-      const nextMonth = new Date(year, month, 1);
-      const endDate = `${nextMonth.getFullYear()}-${String(
-        nextMonth.getMonth() + 1,
-      ).padStart(2, "0")}-01`;
+      // Transaksi dalam rentang periode (end eksklusif)
+      const { start, end } = getPeriodRange(month, year, startDay);
 
       const { data: transactionData, error: transactionError } = await supabase
         .from("transactions")
         .select("category_id, amount, transaction_date")
         .eq("user_id", user.id)
-        .gte("transaction_date", startDate)
-        .lt("transaction_date", endDate);
+        .gte("transaction_date", toDateString(start))
+        .lt("transaction_date", toDateString(end));
+
       if (transactionError) {
         console.error("GET TRANSACTIONS:", transactionError.message);
         return;
@@ -118,34 +118,24 @@ export const useDashboard = (month: number, year: number) => {
       const yesterday = new Date();
       yesterday.setDate(today.getDate() - 1);
 
-      const formatDate = (date: Date) => {
-        const y = date.getFullYear();
-        const m = String(date.getMonth() + 1).padStart(2, "0");
-        const d = String(date.getDate()).padStart(2, "0");
-
-        return `${y}-${m}-${d}`;
-      };
-
-      const todayDate = formatDate(today);
-      const yesterdayDate = formatDate(yesterday);
+      const todayDate = toDateString(today);
+      const yesterdayDate = toDateString(yesterday);
 
       const result = categoryData.map((category) => {
         const budgetData = budgetCategories.find(
           (item) => item.category_id === category.id,
         );
 
-        const spent =
-          transactionData
-            ?.filter((transaction) => transaction.category_id === category.id)
-            .reduce(
-              (total, transaction) => total + Number(transaction.amount || 0),
-              0,
-            ) || 0;
-
         const categoryTransactions = (transactionData || []).filter(
           (transaction) => transaction.category_id === category.id,
         );
 
+        const spent = categoryTransactions.reduce(
+          (total, transaction) => total + Number(transaction.amount || 0),
+          0,
+        );
+
+        // Kalau periode yang dilihat tidak memuat hari ini, hasilnya otomatis 0
         const todaySpent = categoryTransactions
           .filter(
             (transaction) =>
@@ -165,6 +155,7 @@ export const useDashboard = (month: number, year: number) => {
             (total, transaction) => total + Number(transaction.amount || 0),
             0,
           );
+
         return {
           id: category.id,
           name: category.name,
@@ -176,6 +167,7 @@ export const useDashboard = (month: number, year: number) => {
           yesterdaySpent,
         };
       });
+
       const activeCategoryIds = new Set(
         categoryData.map((category) => category.id),
       );
@@ -193,6 +185,9 @@ export const useDashboard = (month: number, year: number) => {
       const savings = Math.max(0, income - totalBudget);
       const remainingBudget = totalBudget - totalSpending;
 
+      // Permintaan ini sudah usang, jangan timpa state
+      if (id !== requestId.current) return;
+
       setSummary({
         income,
         spending: totalSpending,
@@ -205,9 +200,9 @@ export const useDashboard = (month: number, year: number) => {
     } catch (error) {
       console.error("GET DASHBOARD:", error);
     } finally {
-      setLoading(false);
+      if (id === requestId.current) setLoading(false);
     }
-  }, [month, year]);
+  }, [month, year, startDay]);
 
   useEffect(() => {
     fetchDashboard();

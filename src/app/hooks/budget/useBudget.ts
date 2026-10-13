@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
-
+import { getCurrentPeriod } from "@/lib/period/period";
+import { usePeriodStartDay } from "@/lib/period/periodProvider";
 export type Category = {
   id: string;
   user_id: string;
@@ -19,7 +20,10 @@ type Budget = {
   income: number;
 };
 
-export const useBudget = () => {
+export const useBudget = (monthParam?: number, yearParam?: number) => {
+  const startDay = usePeriodStartDay();
+  const current = getCurrentPeriod(startDay);
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [income, setIncome] = useState("");
   const [budgetValues, setBudgetValues] = useState<Record<string, string>>({});
@@ -31,6 +35,9 @@ export const useBudget = () => {
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newCategoryIcon, setNewCategoryIcon] = useState("");
   const [addingCategory, setAddingCategory] = useState(false);
+
+  const month = monthParam ?? current.month;
+  const year = yearParam ?? current.year;
 
   const totalBudget = Object.values(budgetValues).reduce(
     (total, value) => total + Number(value || 0),
@@ -69,10 +76,6 @@ export const useBudget = () => {
 
       setCategories(userCategories);
 
-      const now = new Date();
-      const month = now.getMonth() + 1;
-      const year = now.getFullYear();
-
       const { data: budgetData, error: budgetError } = await supabase
         .from("budgets")
         .select("id, income")
@@ -86,7 +89,12 @@ export const useBudget = () => {
         return;
       }
 
-      if (!budgetData) return;
+      // sebelumnya: if (!budgetData) return;
+      if (!budgetData) {
+        setIncome("");
+        setBudgetValues({});
+        return;
+      }
 
       const budget = budgetData as Budget;
 
@@ -118,7 +126,7 @@ export const useBudget = () => {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     getBudgetData();
-  }, []);
+  }, [month, year]);
 
   const handleBudgetChange = (categoryId: string, value: string) => {
     setBudgetValues((prev) => ({
@@ -139,10 +147,6 @@ export const useBudget = () => {
         alert("Silakan login terlebih dahulu.");
         return;
       }
-
-      const now = new Date();
-      const month = now.getMonth() + 1;
-      const year = now.getFullYear();
 
       const { data: budget, error: budgetError } = await supabase
         .from("budgets")
@@ -272,11 +276,6 @@ export const useBudget = () => {
       alert("Silakan login terlebih dahulu.");
       return;
     }
-
-    // Cari budget bulan dan tahun saat ini
-    const now = new Date();
-    const month = now.getMonth() + 1;
-    const year = now.getFullYear();
 
     const { data: budget, error: budgetError } = await supabase
       .from("budgets")

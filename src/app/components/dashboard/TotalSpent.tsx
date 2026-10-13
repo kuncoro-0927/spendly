@@ -2,12 +2,16 @@ import Skeleton from "../ui/Skeleton";
 import { PiChartLineUpLight } from "react-icons/pi";
 import { useSearchParams } from "next/navigation";
 import { useDashboard } from "@/app/hooks/dashboard/useDashboard";
+import { usePeriodStartDay } from "@/lib/period/periodProvider";
+import { getCurrentPeriod } from "@/lib/period/period";
 export default function TotalSpent() {
   const searchParams = useSearchParams();
 
-  const now = new Date();
-  const month = Number(searchParams.get("month")) || now.getMonth() + 1;
-  const year = Number(searchParams.get("year")) || now.getFullYear();
+  const startDay = usePeriodStartDay();
+  const current = getCurrentPeriod(startDay);
+
+  const month = Number(searchParams.get("month")) || current.month;
+  const year = Number(searchParams.get("year")) || current.year;
   const { summary, loading } = useDashboard(month, year);
 
   const formatRupiah = (value: number) =>

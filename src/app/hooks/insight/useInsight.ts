@@ -1,7 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
+import { daysBetween, getPeriodRange } from "@/lib/period/period";
+import { usePeriodStartDay } from "@/lib/period/periodProvider";
+
 type Transaction = {
   category_id: string;
   amount: number | string;
@@ -44,16 +47,30 @@ export type AiInsight = {
   analysis: string;
 };
 
+const formatDate = (date: Date) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+};
+
 export function useInsight(month: number, year: number) {
+  const startDay = usePeriodStartDay();
+
   const [insight, setInsight] = useState<InsightData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [aiInsight, setAiInsight] = useState<AiInsight[]>([]);
+
+  // Penanda permintaan terbaru, supaya respons lama tidak menimpa yang baru
+  const requestId = useRef(0);
+
   const loadInsight = useCallback(async () => {
+    const id = ++requestId.current;
+    setLoading(true);
+
     try {
       setError(null);
-
-      // createClient() asynchronous, jadi harus di-await
 
       const { data: authData, error: authError } =
         await supabase.auth.getUser();
@@ -63,16 +80,12 @@ export function useInsight(month: number, year: number) {
 
       const userId = authData.user.id;
 
-      const formatDate = (date: Date) => {
-        const y = date.getFullYear();
-        const m = String(date.getMonth() + 1).padStart(2, "0");
-        const d = String(date.getDate()).padStart(2, "0");
-        return `${y}-${m}-${d}`;
-      };
-
-      const startDate = new Date(year, month - 1, 1);
-      const endDate = new Date(year, month, 1);
-      const previousStart = new Date(year, month - 2, 1);
+      // Rentang periode mengikuti tanggal gajian. endDate eksklusif.
+      const {
+        start: startDate,
+        end: endDate,
+        previousStart,
+      } = getPeriodRange(month, year, startDay);
 
       const [currentResult, previousResult, budgetResult, categoriesResult] =
         await Promise.all([
@@ -110,10 +123,8 @@ export function useInsight(month: number, year: number) {
       if (categoriesResult.error) throw categoriesResult.error;
 
       const currentTransactions: Transaction[] = currentResult.data ?? [];
-
       const previousTransactions: PreviousTransaction[] =
         previousResult.data ?? [];
-
       const categories: Category[] = categoriesResult.data ?? [];
 
       const currentSpent = currentTransactions.reduce(
@@ -160,14 +171,21 @@ export function useInsight(month: number, year: number) {
         }));
       }
 
+      // Apakah hari ini ada di dalam periode yang dilihat?
       const now = new Date();
-      const isCurrentMonth =
-        now.getFullYear() === year && now.getMonth() + 1 === month;
+      const isCurrentPeriod = now >= startDate && now < endDate;
 
-      const daysInMonth = new Date(year, month, 0).getDate();
-      const daysElapsed = isCurrentMonth
-        ? Math.max(1, now.getDate())
-        : daysInMonth;
+      // Panjang periode (28 sampai 31 hari) dan hari yang sudah berjalan.
+      // Pakai tengah malam hari ini supaya jam tidak ikut terhitung.
+      const periodDays = daysBetween(startDate, endDate);
+      const todayMidnight = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+      );
+      const daysElapsed = isCurrentPeriod
+        ? Math.max(1, daysBetween(startDate, todayMidnight) + 1)
+        : periodDays;
 
       const categoryInsights: CategoryInsight[] = budgetCategories.map(
         (item: BudgetCategory) => {
@@ -184,8 +202,8 @@ export function useInsight(month: number, year: number) {
             spent,
             budget,
             percentage: budget > 0 ? (spent / budget) * 100 : 0,
-            projected: isCurrentMonth
-              ? (spent / daysElapsed) * daysInMonth
+            projected: isCurrentPeriod
+              ? (spent / daysElapsed) * periodDays
               : spent,
           };
         },
@@ -198,16 +216,19 @@ export function useInsight(month: number, year: number) {
             (a: CategoryInsight, b: CategoryInsight) => b.spent - a.spent,
           )[0] ?? null;
 
-      const projectedSpent = isCurrentMonth
-        ? (currentSpent / daysElapsed) * daysInMonth
+      const projectedSpent = isCurrentPeriod
+        ? (currentSpent / daysElapsed) * periodDays
         : null;
+
+      // Permintaan ini sudah usang, jangan timpa state
+      if (id !== requestId.current) return;
 
       setInsight({
         currentSpent,
         previousSpent,
         spendingChange,
         topCategory,
-        riskyCategories: isCurrentMonth
+        riskyCategories: isCurrentPeriod
           ? categoryInsights.filter(
               (category: CategoryInsight) =>
                 category.budget > 0 && category.projected > category.budget,
@@ -261,7 +282,7 @@ export function useInsight(month: number, year: number) {
           const data = await response.json();
 
           if (!response.ok) {
-            console.error("Trend API error:", data);
+            console.error("Insight API error:", response.url, data);
             throw new Error(data.error ?? "Gagal mengambil insight.");
           }
 
@@ -269,25 +290,23 @@ export function useInsight(month: number, year: number) {
         }),
       );
 
+      if (id !== requestId.current) return;
       setAiInsight(results);
     } catch (err) {
+      if (id !== requestId.current) return;
+
       console.error("Gagal mengambil insight:", err);
       setError("Insight gagal dimuat.");
       setInsight(null);
       setAiInsight([]);
     } finally {
-      setLoading(false);
+      if (id === requestId.current) setLoading(false);
     }
-  }, [month, year]);
+  }, [month, year, startDay]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void loadInsight();
-  }, [loadInsight]);
-
-  const refetch = useCallback(async () => {
-    setLoading(true);
-    await loadInsight();
   }, [loadInsight]);
 
   return {
@@ -295,6 +314,6 @@ export function useInsight(month: number, year: number) {
     aiInsight,
     loading,
     error,
-    refetch,
+    refetch: loadInsight,
   };
 }

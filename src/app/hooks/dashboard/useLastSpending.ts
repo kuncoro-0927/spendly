@@ -1,7 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
+import { usePeriodStartDay } from "@/lib/period/periodProvider";
+import { getPeriodRange, toDateString } from "@/lib/period/period";
 
 export type Spending = {
   id: string;
@@ -13,10 +15,16 @@ export type Spending = {
 };
 
 export const useLastSpending = (month: number, year: number) => {
+  const startDay = usePeriodStartDay();
+
   const [spendings, setSpendings] = useState<Spending[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Penanda permintaan terbaru, supaya respons lama tidak menimpa yang baru
+  const requestId = useRef(0);
+
   const fetchSpendings = useCallback(async () => {
+    const id = ++requestId.current;
     setLoading(true);
 
     try {
@@ -24,24 +32,22 @@ export const useLastSpending = (month: number, year: number) => {
         data: { user },
       } = await supabase.auth.getUser();
 
+      if (id !== requestId.current) return;
+
       if (!user) {
         setSpendings([]);
         return;
       }
 
-      const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
-
-      const nextMonth = new Date(year, month, 1);
-      const endDate = `${nextMonth.getFullYear()}-${String(
-        nextMonth.getMonth() + 1,
-      ).padStart(2, "0")}-01`;
+      // Rentang periode mengikuti tanggal gajian (end eksklusif)
+      const { start, end } = getPeriodRange(month, year, startDay);
 
       const { data: transactions, error } = await supabase
         .from("transactions")
         .select("id, description, amount, transaction_date, category_id")
         .eq("user_id", user.id)
-        .gte("transaction_date", startDate)
-        .lt("transaction_date", endDate)
+        .gte("transaction_date", toDateString(start))
+        .lt("transaction_date", toDateString(end))
         .order("transaction_date", { ascending: false })
         .order("created_at", { ascending: false })
         .limit(3);
@@ -49,7 +55,7 @@ export const useLastSpending = (month: number, year: number) => {
       if (error) throw error;
 
       if (!transactions?.length) {
-        setSpendings([]);
+        if (id === requestId.current) setSpendings([]);
         return;
       }
 
@@ -63,6 +69,9 @@ export const useLastSpending = (month: number, year: number) => {
         .in("id", categoryIds);
 
       if (categoryError) throw categoryError;
+
+      // Permintaan ini sudah usang, jangan timpa state
+      if (id !== requestId.current) return;
 
       setSpendings(
         transactions.map((transaction) => {
@@ -83,9 +92,9 @@ export const useLastSpending = (month: number, year: number) => {
     } catch (error) {
       console.error("GET LAST SPENDING:", error);
     } finally {
-      setLoading(false);
+      if (id === requestId.current) setLoading(false);
     }
-  }, [month, year]);
+  }, [month, year, startDay]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
