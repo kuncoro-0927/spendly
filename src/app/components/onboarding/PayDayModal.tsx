@@ -116,8 +116,8 @@ export default function OnboardingModal({ userId }: { userId: string }) {
       aria-modal="true"
       aria-labelledby="onboarding-title"
     >
-<div className="my-auto w-full max-w-[400px] rounded-4xl bg-white p-1 shadow-xl">
-<div className="rounded-[28px] border border-orange/30 bg-linear-to-b from-orange/20 via-yellow/15 via-25% to-transparent to-50% bg-clip-padding p-5">
+<div className="my-auto mx-4 w-full max-w-[400px] rounded-4xl bg-white p-1 shadow-xl">
+<div className="rounded-[28px] border border-orange/30 bg-linear-to-b from-orange/20 via-yellow/10 via-30% to-transparent to-50% bg-clip-padding p-5">
         {/* Header: nomor langkah dan tombol lewati */}
         <div className="flex hidden items-center  justify-between">
           <span className="text-xs text-[#6c6c6c]">
@@ -136,8 +136,8 @@ export default function OnboardingModal({ userId }: { userId: string }) {
         </div>
 
         {/* Isi langkah */}
-        <div className="mb-10 mt-6 flex h-[280px] flex-col">
-          <div className="mx-auto mb-6 flex size-14 shrink-0 items-center justify-center rounded-2xl shadow-md bg-orange/15">
+        <div className="mb-10 mt-6 flex h-[300px] flex-col">
+          <div className="mx-auto mb-14 flex size-14 shrink-0 items-center justify-center rounded-2xl shadow-md bg-orange/15">
             <Icon className="text-3xl text-orange" />
           </div>
 

@@ -49,7 +49,7 @@ export default function BudgetMock() {
 
   return (
     <div
-      className="mt-4 flex items-center gap-x-4 gap-y-3 rounded-xl border border-black/10 shadow-xs bg-white p-3"
+      className="mt-4 flex items-center gap-x-4 gap-y-3 rounded-xl border border-black/10 shadow-md bg-white p-3"
       aria-hidden="true"
     >
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-orange/15">
