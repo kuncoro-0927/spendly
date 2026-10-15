@@ -52,8 +52,8 @@ export default function TotalBalanceCard() {
 
   return (
     <div className="flex flex-col justify-between rounded-xl min-h-52 bg-linear-to-tr from-orange to-yellow p-5">
-      <span className="text-xl font-medium text-white">Hi, {name}!</span>
-
+      {/* <span className="text-xl font-medium text-white">Hi, {name}!</span> */}
+ <span className="text-xl font-medium text-white">Hi, John Doe!</span>
       <div className="mt-auto flex items-end justify-between gap-1">
         <div className="flex flex-col">
           <span className="text-sm text-white">Sisa anggaran bulan ini</span>
