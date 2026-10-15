@@ -44,7 +44,7 @@ export function BudgetSummary({
       </div>
     </section>
   ) : (
-    <section className=" bg-white">
+    <section className=" bg-white mb-8">
       <h2 className="mb-5 font-semibold text-gray-900">Ringkasan Budget</h2>
 
       <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto scrollbar-hide [&>*]:w-[60%] [&>*]:shrink-0 [&>*]:snap-start lg:grid lg:grid-cols-3 lg:gap-4 lg:snap-none lg:overflow-visible lg:[&>*]:w-auto">

@@ -7,6 +7,7 @@ import NavBarMobile from "../components/layout/NavBarMobile";
 import AiChat from "../components/ai-chat/AiChat";
 import OnboardingModal from "../components/onboarding/PayDayModal";
 import { PeriodProvider } from "@/lib/period/periodProvider";
+import GradientDefs from "../components/layout/GradientDefs";
 export default async function ProtectedLayout({
   children,
 }: {
@@ -36,7 +37,7 @@ export default async function ProtectedLayout({
         </div>
 
         <NavBarMobile />
-
+        <GradientDefs />
         <main className="flex-1 min-w-0">{children}</main>
 
         <div className="w-full hidden lg:block max-w-[220px] shrink-0">

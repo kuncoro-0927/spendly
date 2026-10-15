@@ -61,15 +61,15 @@ export default function LastSpendingCard({
         return (
           <div
             key={spending.id}
-            className="flex w-full min-w-0 items-start justify-between gap-3 rounded-2xl border border-black/20 p-4 duration-300 hover:border-orange hover:shadow-md"
+            className="flex w-full min-w-0 items-start justify-between gap-3 rounded-2xl border border-black/20 p-4 duration-300 hover:border-orange/70 hover:shadow-md"
           >
             <div className="flex min-w-0 items-center gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-orange/10">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-linear-to-r from-orange/15 to-yellow/15">
                 <Icon
                   icon={iconName}
                   width={22}
                   height={22}
-                  className="text-orange"
+                  className="icon-gradient-fill"
                 />
               </span>
 
@@ -88,7 +88,7 @@ export default function LastSpendingCard({
               <span className="text-[10px] font-normal text-[#6c6c6c] leading-tight">
                 IDR{" "}
               </span>
-              <span className="text-sm text-orange">
+              <span className="text-sm bg-linear-to-r from-orange to-yellow bg-clip-text text-transparent">
                 {spending.amount >= 1000000
                   ? `${(spending.amount / 1000000).toLocaleString("id-ID", {
                       maximumFractionDigits: 1,

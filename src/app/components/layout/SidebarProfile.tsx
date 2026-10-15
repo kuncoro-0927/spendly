@@ -64,10 +64,8 @@ export default function SidebarProfile() {
           />
 
           <div className="flex min-w-0 flex-1 flex-col">
-            {/* <span className="text-sm font-medium">{name}</span>
-            <span className="truncate text-xs text-[#6c6c6c]">{email}</span> */}
-                 <span className="text-sm font-medium">John Doe</span>
-            <span className="truncate text-xs text-[#6c6c6c]">johndoe@gmail.com</span>
+            <span className="text-sm font-medium">{name}</span>
+            <span className="truncate text-xs text-[#6c6c6c]">{email}</span>
           </div>
           <IoIosArrowDown
             className={`shrink-0 text-lg text-gray-500 transition-transform duration-200 ${

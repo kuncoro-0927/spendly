@@ -19,6 +19,7 @@ export default function AiChat() {
         onSubmit={chat.submit}
         onOpenUpload={receipt.openUpload}
         loading={chat.loading}
+        reply={chat.reply}
         error={chat.error}
       />
 

@@ -79,12 +79,12 @@ export default function ReceiptItemCard({
         className="flex w-full cursor-pointer items-center justify-between gap-2 p-3 text-left"
       >
         <div className="flex min-w-0 items-center gap-2">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange/15">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-linear-to-r from-orange/15 to-yellow/15">
             <Icon
               icon={iconName}
               width={23}
               height={23}
-              className="text-orange"
+              className="icon-gradient-fill"
             />
           </div>
 

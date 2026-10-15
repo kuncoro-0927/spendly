@@ -11,6 +11,7 @@ export function useAiChat() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
+  const [reply, setReply] = useState("");
 
   const reset = () => {
     setTransactions([]);
@@ -24,6 +25,7 @@ export function useAiChat() {
 
     setLoading(true);
     setError("");
+    setReply("");
     reset();
 
     try {
@@ -33,10 +35,18 @@ export function useAiChat() {
         body: JSON.stringify({ message }),
       });
 
-      const data: AiResult = await response.json();
+      const data = await response.json();
 
-      if (data.error) {
-        setError(data.error);
+      if (!response.ok) {
+        setError(data.error || "Gagal memproses pesan.");
+        return;
+      }
+
+      if (data.status !== "transaction") {
+        setReply(
+          data.reply ||
+            "Aku bisa membantu mencatat dan mengelola pengeluaranmu.",
+        );
         return;
       }
 
@@ -132,6 +142,7 @@ export function useAiChat() {
     submit,
     cancel: reset,
     save,
+    reply,
     updateTransaction,
     deleteTransaction,
     toggleExpanded,

@@ -25,12 +25,12 @@ export function BudgetCategoryItem({
 }: BudgetCategoryItemProps) {
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-xl border border-black/10 p-4 sm:flex-nowrap">
-      <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-orange/15">
+      <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-linear-to-r from-orange/15 to-yellow/15">
         <Icon
           icon={category.icon || "ph:house-light"}
           width={23}
           height={23}
-          className="text-orange"
+          className="icon-gradient-fill"
         />
       </div>
 

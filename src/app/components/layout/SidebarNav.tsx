@@ -28,12 +28,58 @@ export default function SidebarNav() {
             <li key={href}>
               <Link
                 href={href}
-                className={`flex items-center gap-2 rounded-lg p-2 text-sm duration-300 hover:bg-orange/10 hover:text-orange ${
-                  isActive ? "bg-orange/10 text-orange" : ""
-                }`}
+                className="group relative isolate flex items-center gap-2 rounded-lg p-2 text-sm transition-colors duration-300 hover:bg-orange/10"
               >
-                <Icon className="text-xl" />
-                {label}
+                {/* background gradient (active) */}
+                <span
+                  aria-hidden
+                  className={`absolute inset-0 -z-10 rounded-lg bg-linear-to-r from-orange/15 via-80% to-100% to-yellow/15 transition-opacity duration-300 ${
+                    isActive ? "opacity-100" : "opacity-0"
+                  }`}
+                />
+
+                {/* icon: dua lapis ditumpuk, di-crossfade */}
+                {/* icon: dua lapis ditumpuk, di-crossfade */}
+                <span className="grid text-xl">
+                  <Icon
+                    className={`col-start-1 row-start-1 transition-opacity duration-300 ${
+                      isActive
+                        ? "opacity-0"
+                        : "opacity-100 group-hover:opacity-0"
+                    }`}
+                  />
+                  <Icon
+                    aria-hidden
+                    className={`icon-gradient-fill col-start-1 row-start-1 transition-opacity duration-300 ${
+                      isActive
+                        ? "opacity-100"
+                        : "opacity-0 group-hover:opacity-100"
+                    }`}
+                  />
+                </span>
+
+                {/* label: teks biasa + teks gradient ditumpuk */}
+                <span className="grid">
+                  <span
+                    className={`col-start-1 row-start-1 transition-opacity duration-300 ${
+                      isActive
+                        ? "opacity-0"
+                        : "opacity-100 group-hover:opacity-0"
+                    }`}
+                  >
+                    {label}
+                  </span>
+                  <span
+                    aria-hidden
+                    className={`col-start-1 row-start-1 bg-linear-to-r from-orange to-yellow bg-clip-text text-transparent transition-opacity duration-300 ${
+                      isActive
+                        ? "opacity-100"
+                        : "opacity-0 group-hover:opacity-100"
+                    }`}
+                  >
+                    {label}
+                  </span>
+                </span>
               </Link>
             </li>
           );

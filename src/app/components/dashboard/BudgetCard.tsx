@@ -55,12 +55,12 @@ export default function BudgetCard({
   return hasBudget ? (
     <div className="flex flex-col gap-6 rounded-2xl border border-black/20 p-4 duration-300 hover:border-orange hover:shadow-md">
       <div className="flex w-full items-center gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-orange/10">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-linear-to-r from-orange/15 to-yellow/15">
           <Icon
             icon={iconName}
             width={22}
             height={22}
-            className="text-orange"
+            className="icon-gradient-fill"
           />
         </span>
 

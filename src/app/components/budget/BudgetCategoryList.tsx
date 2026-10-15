@@ -45,7 +45,7 @@ export function BudgetCategoryList({
       </div>
     </section>
   ) : (
-    <section className="rounded-2xl">
+    <section className="mb-8">
       <div className="mb-6 flex items-center justify-between gap-4">
         <div>
           <h2 className="font-semibold text-gray-900">Budget Kategori</h2>
@@ -57,7 +57,7 @@ export function BudgetCategoryList({
         <button
           type="button"
           onClick={onAddCategory}
-          className="flex cursor-pointer items-center gap-2 rounded-xl bg-orange px-4 py-2.5 text-sm text-white transition duration-300 hover:-translate-y-0.5 hover:shadow-sm"
+          className="flex cursor-pointer items-center gap-2 rounded-xl bg-linear-to-r from-orange via-90%  to-yellow to-100% px-4 py-2.5 text-sm text-white transition duration-300 hover:-translate-y-0.5 hover:shadow-sm"
         >
           <LuPlus size={14} />
           <span className="hidden lg:block">Tambah kategori</span>

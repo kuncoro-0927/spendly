@@ -12,7 +12,7 @@ export default function BudgetPage() {
   const budget = useBudget();
 
   return (
-    <main className="flex-1 pb-52 lg:pb-6 p-6 bg-white">
+    <main className="flex-1 pb-52 lg:pb-6 p-6 bg-white lg:rounded-2xl">
       <BudgetHeader />
 
       <div className="max-w-5xl space-y-3">
