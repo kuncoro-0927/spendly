@@ -116,7 +116,7 @@ export default function OnboardingModal({ userId }: { userId: string }) {
       aria-modal="true"
       aria-labelledby="onboarding-title"
     >
-<div className="my-auto mx-4 w-full max-w-[400px] rounded-4xl bg-white p-1 shadow-xl">
+<div className="my-auto w-full max-w-[400px] rounded-4xl bg-white p-1 shadow-xl">
 <div className="rounded-[28px] border border-orange/30 bg-linear-to-b from-orange/20 via-yellow/10 via-30% to-transparent to-50% bg-clip-padding p-5">
         {/* Header: nomor langkah dan tombol lewati */}
         <div className="flex hidden items-center  justify-between">
