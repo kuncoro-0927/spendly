@@ -29,7 +29,7 @@ export default function LoginPage() {
   const isLogin = mode === "login";
 
   return (
-    <main className="min-h-screen flex flex-col lg:flex-row items-center gap-10 xl:gap-5 justify-center p-6 xl:mx-20 2xl:mx-40">
+    <main className="min-h-screen flex flex-col py-20 lg:flex-row items-center gap-10 xl:gap-5 justify-center p-6 xl:mx-20 2xl:mx-40">
       <div className="text-center  flex flex-col items-center justify-center w-full xl:max-w-1/2">
         <span className="font-medium text-xl">
           {isLogin ? "Selamat datang di Gemi AI" : "Buat akun Gemi"}
