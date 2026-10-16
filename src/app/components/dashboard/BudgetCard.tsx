@@ -10,6 +10,15 @@ type BudgetCategoryCardProps = {
   yesterdaySpent: number;
 };
 
+const LEGACY_ICONS: Record<string, string> = {
+  house: "ph:house-light",
+  hamburger: "ph:hamburger-light",
+  car: "ph:car-light",
+  soccer: "ph:football-light",
+  "shopping-bag": "ph:shopping-bag-light",
+  medical: "ph:first-aid-kit-light",
+};
+
 const formatShortRupiah = (value: number = 0) => {
   if (value >= 1_000_000) {
     return `${(value / 1_000_000).toLocaleString("id-ID", {
@@ -35,24 +44,23 @@ export default function BudgetCard({
   todaySpent = 0,
   yesterdaySpent = 0,
 }: BudgetCategoryCardProps) {
-  console.log("BudgetCard dirender:", { name, budget, hasBudget });
-
   const iconName = icon.includes(":")
     ? icon
-    : (
-        {
-          house: "ph:house-light",
-          hamburger: "ph:hamburger-light",
-          car: "ph:car-light",
-          soccer: "ph:football-light",
-          "shopping-bag": "ph:shopping-bag-light",
-          medical: "ph:first-aid-kit-light",
-        } as Record<string, string>
-      )[icon] || "ph:house-light";
+    : (LEGACY_ICONS[icon] ?? "ph:house-light");
 
-  const percentage = budget > 0 ? Math.min((spent / budget) * 100, 100) : 0;
+  // Batas dianggap ada hanya kalau barisnya ada DAN nominalnya lebih dari 0.
+  // Kalau user menekan Simpan tanpa mengisi angka, baris bernilai 0 tetap terbentuk.
+  const hasLimit = hasBudget && budget > 0;
 
-  return hasBudget ? (
+  const percentage = hasLimit ? Math.min((spent / budget) * 100, 100) : 0;
+
+  const subtitle = !hasLimit
+    ? "Belum ada batas"
+    : spent > budget
+      ? "Melebihi batas"
+      : `Sisa IDR ${formatShortRupiah(budget - spent)}`;
+
+  return (
     <div className="flex flex-col gap-6 rounded-2xl border border-black/20 p-4 duration-300 hover:border-orange hover:shadow-md">
       <div className="flex w-full items-center gap-3">
         <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-linear-to-r from-orange/15 to-yellow/15">
@@ -66,7 +74,7 @@ export default function BudgetCard({
 
         <div className="flex w-full flex-col">
           <span className="text-sm font-medium leading-none">{name}</span>
-          <span className="text-sm text-[#6c6c6c]">Lorem ipsum dolor sit.</span>
+          <span className="text-sm text-[#6c6c6c]">{subtitle}</span>
         </div>
       </div>
 
@@ -78,41 +86,42 @@ export default function BudgetCard({
             {formatShortRupiah(spent)}
           </span>
 
-          <span className="text-sm text-[#6c6c6c]">
-            / {formatShortRupiah(budget)}
-          </span>
+          {hasLimit && (
+            <span className="text-sm text-[#6c6c6c]">
+              / {formatShortRupiah(budget)}
+            </span>
+          )}
         </div>
 
         <div className="flex flex-col">
-          <div className="flex justify-between items-center">
+          <div className="flex items-center justify-between">
             <span className="text-xs text-[#6c6c6c]">today</span>
-            <span className="bg-linear-to-r from-orange to-yellow bg-clip-text text-transparent font-medium text-sm">
-              {" "}
+            <span className="bg-linear-to-r from-orange to-yellow bg-clip-text text-sm font-medium text-transparent">
               {formatShortRupiah(todaySpent)}
             </span>
           </div>
 
-          <div className="flex justify-between items-center">
+          <div className="flex items-center justify-between">
             <span className="text-xs text-[#6c6c6c]">yesterday</span>
-            <span className="bg-linear-to-r from-orange to-yellow bg-clip-text text-transparent font-medium text-sm">
+            <span className="bg-linear-to-r from-orange to-yellow bg-clip-text text-sm font-medium text-transparent">
               {formatShortRupiah(yesterdaySpent)}
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="h-2 w-full overflow-hidden rounded-full bg-gray">
-            <div
-              className="h-full rounded-full bg-linear-to-r from-orange to-yellow"
-              style={{ width: `${percentage}%` }}
-            />
-          </div>
+        {hasLimit && (
+          <div className="flex items-center gap-4">
+            <div className="h-2 w-full overflow-hidden rounded-full bg-gray">
+              <div
+                className="h-full rounded-full bg-linear-to-r from-orange to-yellow"
+                style={{ width: `${percentage}%` }}
+              />
+            </div>
 
-          <p className=" text-xs text-[#6c6c6c]">{Math.round(percentage)}%</p>
-        </div>
+            <p className="text-xs text-[#6c6c6c]">{Math.round(percentage)}%</p>
+          </div>
+        )}
       </div>
     </div>
-  ) : (
-    <p className="text-sm text-gray-500">Belum ada budget.</p>
   );
 }

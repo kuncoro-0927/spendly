@@ -1,9 +1,11 @@
-import Groq from "groq-sdk";
 import { NextResponse } from "next/server";
+import { generateInsight, rupiahText } from "@/lib/ai/insight";
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
+const TASK = `
+Tugas: jelaskan kategori dengan pengeluaran terbesar dan porsinya terhadap total.
+Contoh balasan:
+{"title":"Makanan Terbesar","analysis":"Makanan menjadi pengeluaran terbesar dengan Rp1 juta, sekitar 40% dari total periode ini."}
+`;
 
 export async function POST(request: Request) {
   try {
@@ -15,47 +17,40 @@ export async function POST(request: Request) {
       typeof currentSpent !== "number"
     ) {
       return NextResponse.json(
-        { error: "Data kategori tidak valid." },
+        { error: "Data pengeluaran tidak valid." },
         { status: 400 },
       );
     }
 
-    const completion = await groq.chat.completions.create({
-      model: "qwen/qwen3.8-27b",
-      messages: [
-        {
-          role: "system",
-          content: `
-Kamu adalah AI analis kategori pengeluaran di aplikasi Spendly.
-Analisis kategori dengan pengeluaran terbesar dan porsinya terhadap total pengeluaran.
-Gunakan bahasa Indonesia yang natural dan singkat.
-Jangan memberikan saran atau rekomendasi.
-Maksimal 20 kata untuk analysis.
-Balas hanya dengan JSON valid berisi title dan analysis.
-          `,
-        },
-        {
-          role: "user",
-          content: JSON.stringify({
-            topCategory,
-            categorySpent,
-            currentSpent,
-          }),
-        },
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.5,
-    });
-
-    const content = completion.choices[0]?.message?.content;
-
-    if (!content) {
-      throw new Error("Respons AI kosong.");
+    if (
+      currentSpent <= 0 ||
+      categorySpent <= 0 ||
+      topCategory === "Belum ada pengeluaran"
+    ) {
+      return NextResponse.json({
+        title: "Belum Ada Data",
+        analysis: "Belum ada pengeluaran tercatat di periode ini.",
+      });
     }
 
-    return NextResponse.json(JSON.parse(content));
+    const share = Math.round((categorySpent / currentSpent) * 100);
+
+    return NextResponse.json(
+      await generateInsight(
+        TASK,
+        {
+          kategori: topCategory,
+          pengeluaran: rupiahText(categorySpent),
+          porsi: `${share}%`,
+        },
+        {
+          title: `${topCategory} Terbesar`,
+          analysis: `${topCategory} menjadi pengeluaran terbesar dengan ${rupiahText(categorySpent)}, sekitar ${share}% dari total pengeluaran periode ini.`,
+        },
+      ),
+    );
   } catch (error) {
-    console.error("Category insight error:", error);
+    console.error("Category insight API error:", error);
 
     return NextResponse.json(
       { error: "Gagal membuat insight kategori." },

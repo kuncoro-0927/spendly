@@ -108,7 +108,7 @@ export default function Home() {
 
       {/* sisa budget */}
       <div className="mt-8">
-        <span className="font-semibold">Lorem, ipsum dolor.</span>
+        <span className="font-semibold">Total Pengeluaran</span>
 
         <div className="mt-2 grid-cols-1 grid lg:grid-cols-2 gap-3">
           {loading ? (

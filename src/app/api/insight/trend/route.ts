@@ -1,9 +1,11 @@
-import Groq from "groq-sdk";
 import { NextResponse } from "next/server";
+import { generateInsight, rupiahText } from "@/lib/ai/insight";
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
+const TASK = `
+Tugas: jelaskan perubahan pengeluaran periode ini dibanding periode lalu.
+Contoh data: {"periodeIni":"Rp 2,5 juta","periodeLalu":"Rp 2 juta","perubahan":"naik 25%"}
+Contoh balasan: {"title":"Pengeluaran Naik","analysis":"Pengeluaranmu naik 25% dibanding periode lalu, dari Rp 2 juta menjadi Rp 2,5 juta."}
+`;
 
 export async function POST(request: Request) {
   try {
@@ -21,50 +23,54 @@ export async function POST(request: Request) {
       );
     }
 
-    const completion = await groq.chat.completions.create({
-      model: "qwen/qwen3.8-27b",
-      messages: [
-        {
-          role: "system",
-          content: `
-Kamu adalah AI analis keuangan pribadi untuk aplikasi Spendly.
-Analisis perubahan pengeluaran bulan ini dibanding bulan sebelumnya.
-Gunakan bahasa Indonesia yang natural, singkat, dan mudah dipahami.
-Jangan memberikan saran atau rekomendasi.
-Maksimal 20 kata untuk analysis.
-Balas hanya dengan JSON valid berisi title dan analysis.
-          `,
-        },
-        {
-          role: "user",
-          content: JSON.stringify({
-            currentSpent,
-            previousSpent,
-            spendingChange,
-          }),
-        },
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.5,
-    });
-
-    const content = completion.choices[0]?.message?.content;
-
-    if (!content) {
-      throw new Error("Respons AI kosong.");
+    // Kasus kosong dijawab langsung, tanpa memanggil AI
+    if (currentSpent === 0 && previousSpent === 0) {
+      return NextResponse.json({
+        title: "Belum Ada Data",
+        analysis:
+          "Belum ada pengeluaran tercatat di periode ini maupun sebelumnya.",
+      });
     }
 
-    return NextResponse.json(JSON.parse(content));
+    if (previousSpent === 0) {
+      return NextResponse.json({
+        title: "Belum Ada Pembanding",
+        analysis: `Pengeluaranmu ${rupiahText(currentSpent)}, dan periode lalu belum punya data.`,
+      });
+    }
+
+    const percent = Math.abs(Math.round(spendingChange));
+    const direction =
+      percent < 3 ? "stabil" : spendingChange > 0 ? "naik" : "turun";
+
+    const perubahan =
+      direction === "stabil" ? "hampir sama" : `${direction} ${percent}%`;
+
+    const fallbackTitle = {
+      stabil: "Pengeluaran Stabil",
+      naik: "Pengeluaran Naik",
+      turun: "Pengeluaran Turun",
+    }[direction];
+
+    const result = await generateInsight(
+      TASK,
+      {
+        periodeIni: rupiahText(currentSpent),
+        periodeLalu: rupiahText(previousSpent),
+        perubahan,
+      },
+      {
+        title: fallbackTitle,
+        analysis: `Pengeluaranmu ${perubahan} dibanding periode lalu.`,
+      },
+    );
+
+    return NextResponse.json(result);
   } catch (error) {
     console.error("Trend API error:", error);
 
-    return Response.json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Gagal membuat insight tren pengeluaran.",
-      },
+    return NextResponse.json(
+      { error: "Gagal membuat insight tren pengeluaran." },
       { status: 500 },
     );
   }
