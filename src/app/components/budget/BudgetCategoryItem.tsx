@@ -24,18 +24,18 @@ export function BudgetCategoryItem({
   onDelete,
 }: BudgetCategoryItemProps) {
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-xl border border-black/10 p-4 sm:flex-nowrap">
-      <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-linear-to-r from-orange/15 to-yellow/15">
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-xl border border-black/10 p-3 sm:flex-nowrap">
+      <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-linear-to-r from-orange/15 to-yellow/15">
         <Icon
           icon={category.icon || "ph:house-light"}
-          width={23}
-          height={23}
+          width={22}
+          height={22}
           className="icon-gradient-fill"
         />
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className="truncate font-medium text-gray-900">{category.name}</p>
+        <p className="truncate font-medium text-sm text-gray-900">{category.name}</p>
         <p className="mt-0.5 text-xs text-[#6c6c6c]">Batas pengeluaran</p>
       </div>
 

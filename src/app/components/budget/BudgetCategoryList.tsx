@@ -22,7 +22,7 @@ export function BudgetCategoryList({
 }: BudgetCategoryListProps) {
   return loading ? (
     <section className="animate-pulse rounded-2xl">
-      <div className="mb-6 flex items-center justify-between gap-4">
+      <div className="mb-6 flex items-center justify-between gap-4 ">
         <div className="flex-1">
           <Skeleton className="h-5 w-36" />
           <Skeleton className="mt-2 h-4 w-64" />
@@ -35,10 +35,15 @@ export function BudgetCategoryList({
         {Array.from({ length: 4 }).map((_, index) => (
           <div
             key={index}
-            className="flex items-center gap-3 rounded-xl bg-white/60 p-4"
+            className="flex items-center gap-3 rounded-xl bg-gray-100 p-4"
           >
             <Skeleton className="h-10 w-10 shrink-0" />
-            <Skeleton className="h-4 flex-1" />
+
+            <div className="flex flex-col gap-2 flex-1">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-3 w-16" />
+            </div>
+
             <Skeleton className="h-10 w-32 rounded-lg" />
           </div>
         ))}

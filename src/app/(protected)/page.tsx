@@ -35,7 +35,7 @@ export default function Home() {
   const { categories, loading, summary } = useDashboard(month, year);
 
   return (
-    <div className="bg-white w-auto p-6 lg:rounded-xl pb-52 lg:pb-6">
+    <section className="bg-white w-auto p-6 lg:rounded-xl pb-52 lg:pb-6">
       {/* icon kategori */}
       <div className="flex items-stretch gap-3">
         <div className="btn-gradient-border flex items-center justify-center h-12 w-12 rounded-full">
@@ -115,7 +115,7 @@ export default function Home() {
             Array.from({ length: 4 }).map((_, index) => (
               <div
                 key={index}
-                className="flex flex-col gap-6 rounded-2xl bg-gray-100 p-4"
+                className="flex flex-col gap-6 rounded-2xl bg-gray-100 p-3"
               >
                 <div className="flex items-center gap-3">
                   <Skeleton className="size-10 shrink-0" />
@@ -149,6 +149,6 @@ export default function Home() {
           )}
         </div>
       </div>
-    </div>
+    </section>
   );
 }

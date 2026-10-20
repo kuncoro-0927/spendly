@@ -65,15 +65,15 @@ export default function MonthPicker({ month, year, onChange }: Props) {
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
         aria-expanded={isOpen}
-        className="flex cursor-pointer items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-left text-sm hover:border-gray-300"
+        className="flex cursor-pointer items-center gap-2 rounded-lg border border-black/20 bg-white px-3 py-2 text-left text-sm hover:border-gray-300"
       >
         <PiCalendarBlankLight className="shrink-0 text-lg text-[#6c6c6c]" />
 
         <span className="flex flex-col leading-tight">
-          <span className="font-medium">
+          {/* <span className="font-medium text-xs">
             {months[month]} {year}
-          </span>
-          <span className="text-[11px] text-[#6c6c6c]">{rangeLabel}</span>
+          </span> */}
+          <span className="text-xs text-[#6c6c6c]">{rangeLabel}</span>
         </span>
 
         <IoIosArrowDown

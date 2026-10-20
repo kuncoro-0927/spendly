@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useDashboard } from "@/app/hooks/dashboard/useDashboard";
 import { usePeriodStartDay } from "@/lib/period/periodProvider";
 import { getCurrentPeriod } from "@/lib/period/period";
+import { TbMoneybag } from "react-icons/tb";
 export default function TotalTabungan() {
   const searchParams = useSearchParams();
 
@@ -13,15 +14,23 @@ export default function TotalTabungan() {
   const month = Number(searchParams.get("month")) || current.month;
   const year = Number(searchParams.get("year")) || current.year;
   const { summary, loading } = useDashboard(month, year);
+  const formatShortRupiah = (value: number = 0) => {
+    if (value >= 1_000_000) {
+      return `${(value / 1_000_000).toLocaleString("id-ID", {
+        maximumFractionDigits: 1,
+      })}Jt`;
+    }
 
-  const formatRupiah = (value: number) =>
-    new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      maximumFractionDigits: 0,
-    }).format(value);
+    if (value >= 1_000) {
+      return `${(value / 1_000).toLocaleString("id-ID", {
+        maximumFractionDigits: 1,
+      })}K`;
+    }
+
+    return value.toLocaleString("id-ID");
+  };
   return (
-    <div className="mt-3 flex flex-col rounded-2xl border border-black/20 lg:border-none bg-white p-6">
+    <div className="mt-3 flex flex-col rounded-2xl border border-black/20 lg:border-none bg-white p-3">
       {loading ? (
         <>
           <Skeleton className="h-4 w-20" />
@@ -30,13 +39,23 @@ export default function TotalTabungan() {
         </>
       ) : (
         <>
-          <span className="text-sm font-medium">Tabungan</span>
-          <span className="text-2xl font-semibold">
-            {formatRupiah(summary.savings)}
-          </span>
-          <span className="mt-3 flex items-center gap-1 text-xs">
+          <div className="flex items-center gap-3">
+            <span className="rounded-lg bg-blue-100/70 p-2">
+              <TbMoneybag className="text-base font-medium text-blue-600" />
+            </span>
+            <span className="text-sm text-[#6c6c6c]">Tabungan</span>
+          </div>
+
+          <div className="mt-2 flex items-baseline gap-1">
+            <span className="text-xs">IDR</span>
+
+            <span className="text-xl font-semibold">
+              {formatShortRupiah(summary.savings)}
+            </span>
+          </div>
+          <span className="mt-3 flex items-center gap-1 text-xs text-[#6c6c6c]">
             <PiChartLineUpLight className="text-sm text-green-600" />
-            <span className="text-green-600">+0,05%</span> bulan ini
+            <span className="text-green-600">+0,05%</span> vs periode lalu
           </span>
         </>
       )}

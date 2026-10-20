@@ -49,7 +49,7 @@ export function IncomeCard({
           value={formatRupiahInput(income)}
           onChange={(e) => onChange(e.target.value.replace(/\D/g, ""))}
           placeholder="0"
-          className="w-full rounded-xl border border-gray-200 py-3 pl-12 pr-4 outline-none focus:border-yellow [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          className="w-full rounded-xl border border-black/20 py-3 pl-12 pr-4 outline-none focus:border-yellow [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         />
       </div>
     </section>

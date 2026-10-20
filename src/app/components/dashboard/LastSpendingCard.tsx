@@ -29,7 +29,7 @@ export default function LastSpendingCard({
         {Array.from({ length: 3 }).map((_, index) => (
           <div
             key={index}
-            className="flex w-full min-w-0 items-start justify-between gap-3 rounded-2xl bg-gray-100 p-4"
+            className="flex w-full min-w-0 items-start justify-between gap-3 rounded-2xl bg-gray-100 p-3"
           >
             <div className="flex min-w-0 flex-1 items-center gap-3">
               <Skeleton className="size-10 shrink-0" />
@@ -61,7 +61,7 @@ export default function LastSpendingCard({
         return (
           <div
             key={spending.id}
-            className="flex w-full min-w-0 items-start justify-between gap-3 rounded-2xl border border-black/20 p-4 duration-300 hover:border-orange/70 hover:shadow-md"
+            className="flex w-full min-w-0 items-start justify-between gap-3 rounded-xl border border-black/20 p-3 duration-300 hover:border-orange/70 hover:shadow-md"
           >
             <div className="flex min-w-0 items-center gap-3">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-linear-to-r from-orange/15 to-yellow/15">
