@@ -3,7 +3,15 @@ type SkeletonProps = {
 };
 
 export default function Skeleton({ className = "" }: SkeletonProps) {
+  // Radius bawaan hanya dipakai kalau className tidak menentukan radius sendiri
+  const hasRadius = /(^|\s)rounded/.test(className);
+
   return (
-    <div className={`animate-pulse rounded-lg bg-gray-200 ${className}`} />
+    <div
+      aria-hidden="true"
+      className={`animate-pulse bg-gray-200 ${
+        hasRadius ? "" : "rounded-lg"
+      } ${className}`}
+    />
   );
 }

@@ -38,17 +38,17 @@ export default function PayDayPicker({ value, onChange }: Props) {
   }, [open]);
 
   return (
-    <div ref={ref} className="relative mt-4">
+    <div ref={ref} className="relative">
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
         aria-expanded={open}
-        className={`flex w-full cursor-pointer items-center gap-3 rounded-xl border bg-white px-4 py-3 text-left text-sm duration-200 ${
-          open ? "border-orange" : "border-gray-200 hover:border-gray-300"
+        className={`flex w-full cursor-pointer items-center gap-3 rounded-lg border bg-white px-4 py-2 text-left text-sm duration-200 ${
+          open ? "border-orange" : "border-black/20"
         }`}
       >
         <PiCalendarBlankLight className="shrink-0 text-xl text-[#6c6c6c]" />
-        <span className="flex-1 font-medium text-gray-900">
+        <span className="flex-1 text-gray-900">
           Tanggal {value} setiap bulan
         </span>
         <IoIosArrowDown

@@ -5,6 +5,9 @@ import ReceiptItemCard from "../shared/ReceiptItemCard";
 import { formatRupiah } from "@/lib/receipt/format";
 import type { Category } from "@/lib/receipt/receipt-types";
 import type { Transaction } from "@/lib/receipt/receipt-types";
+import BudgetWarnings from "./BudgetWarnings";
+import type { BudgetWarning } from "@/app/hooks/budget/useBudgetCheck";
+import type { WarningState } from "@/lib/budget/limits";
 
 type Props = {
   transactions: Transaction[];
@@ -21,6 +24,10 @@ type Props = {
   onDelete: (index: number) => void;
   onCancel: () => void;
   onSave: () => void;
+
+  warnings: BudgetWarning[];
+  states: Record<string, WarningState>;
+  onRaise: (key: string, amount: number | null) => void;
 };
 
 export default function ConfirmTransactionModal({
@@ -34,6 +41,9 @@ export default function ConfirmTransactionModal({
   onDelete,
   onCancel,
   onSave,
+  warnings,
+  states,
+  onRaise,
 }: Props) {
   const total = transactions.reduce(
     (sum, transaction) => sum + Number(transaction.amount || 0),
@@ -78,6 +88,8 @@ export default function ConfirmTransactionModal({
             />
           ))}
         </div>
+
+        <BudgetWarnings warnings={warnings} states={states} onRaise={onRaise} />
 
         <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4">
           <span className="text-sm text-gray-500">Total</span>

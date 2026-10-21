@@ -35,21 +35,10 @@ export default function AiChat() {
           onDelete={chat.deleteTransaction}
           onCancel={chat.cancel}
           onSave={chat.save}
-        />
-      )}
-
-      {chat.transactions.length > 0 && (
-        <ConfirmTransactionModal
-          transactions={chat.transactions}
-          categories={chat.categories}
-          expandedIndex={chat.expandedIndex}
-          saving={chat.saving}
-          error={chat.saveError}
-          onToggle={chat.toggleExpanded}
-          onChange={chat.updateTransaction}
-          onDelete={chat.deleteTransaction}
-          onCancel={chat.cancel}
-          onSave={chat.save}
+          warnings={chat.warnings}
+          states={chat.warningStates}
+          onRaise={chat.setRaise}
+          // blocked={chat.blocked}
         />
       )}
 

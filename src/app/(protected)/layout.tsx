@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 import SidebarNav from "../components/layout/SidebarNav";
-import SidebarProfile from "../components/layout/SidebarProfile";
+import SidebarProfile from "../components/sidebarProfile/SidebarProfile";
 import NavBarMobile from "../components/layout/NavBarMobile";
 import AiChat from "../components/ai-chat/AiChat";
 import OnboardingModal from "../components/onboarding/PayDayModal";

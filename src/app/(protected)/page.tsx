@@ -19,9 +19,9 @@ import MonthPicker from "../components/ui/MonthPickerButton";
 import Skeleton from "../components/ui/Skeleton";
 import TodayDate from "../components/dashboard/TodayDate";
 
-import TotalIncome from "../components/dashboard/TotalIncome";
-import TotalTabungan from "../components/dashboard/TotalTabungan";
-import TotalSpent from "../components/dashboard/TotalSpent";
+import TotalIncome from "../components/sidebarProfile/TotalIncome";
+import TotalTabungan from "../components/sidebarProfile/TotalTabungan";
+import TotalSpent from "../components/sidebarProfile/TotalSpent";
 import { getCurrentPeriod } from "@/lib/period/period";
 import { usePeriodStartDay } from "@/lib/period/periodProvider";
 export default function Home() {
@@ -35,7 +35,7 @@ export default function Home() {
   const { categories, loading, summary } = useDashboard(month, year);
 
   return (
-    <section className="bg-white w-auto p-6 lg:rounded-xl pb-52 lg:pb-6">
+    <section className="bg-white w-auto p-6 lg:rounded-xl pb-52 lg:pb-6 shadow-sm">
       {/* icon kategori */}
       <div className="flex items-stretch gap-3">
         <div className="btn-gradient-border flex items-center justify-center h-12 w-12 rounded-full">

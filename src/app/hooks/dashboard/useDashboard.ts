@@ -18,9 +18,11 @@ type DashboardCategory = {
 
 const EMPTY_SUMMARY = {
   income: 0,
+  previousIncome: 0,
   spending: 0,
   remaining: 0,
   savings: 0,
+  previousSaving: 0,
   totalBudget: 0,
 };
 
@@ -64,6 +66,57 @@ export const useDashboard = (month: number, year: number) => {
         console.error("GET BUDGET:", budgetError.message);
         return;
       }
+
+      // Periode sebelumnya
+      const prevMonth = month === 1 ? 12 : month - 1;
+      const prevYear = month === 1 ? year - 1 : year;
+
+      // Income periode sebelumnya
+      const { data: previousBudget, error: previousBudgetError } =
+        await supabase
+          .from("budgets")
+          .select("id, income")
+          .eq("user_id", user.id)
+          .eq("month", prevMonth)
+          .eq("year", prevYear)
+          .maybeSingle();
+
+      if (previousBudgetError) {
+        console.error("GET PREVIOUS BUDGET:", previousBudgetError.message);
+        return;
+      }
+
+      // Total budget kategori periode sebelumnya
+      let previousTotalBudget = 0;
+
+      if (previousBudget) {
+        const { data: previousBudgetCategories, error } = await supabase
+          .from("budget_categories")
+          .select("amount")
+          .eq("budget_id", previousBudget.id);
+
+        if (error) {
+          console.error("GET PREVIOUS BUDGET CATEGORIES:", error.message);
+          return;
+        }
+
+        previousTotalBudget = (previousBudgetCategories || []).reduce(
+          (total, item) => total + Number(item.amount || 0),
+          0,
+        );
+      }
+
+      // Sisa income setelah dialokasikan ke budget
+      const previousSaving = Math.max(
+        0,
+        Number(previousBudget?.income || 0) - previousTotalBudget,
+      );
+
+      const { start: previousStart, end: previousEnd } = getPeriodRange(
+        prevMonth,
+        prevYear,
+        startDay,
+      );
 
       // Ambil kategori user
       const { data: categoryData, error: categoryError } = await supabase
@@ -190,9 +243,11 @@ export const useDashboard = (month: number, year: number) => {
 
       setSummary({
         income,
+        previousIncome: Number(previousBudget?.income || 0),
         spending: totalSpending,
         remaining: remainingBudget,
         savings,
+        previousSaving,
         totalBudget,
       });
 

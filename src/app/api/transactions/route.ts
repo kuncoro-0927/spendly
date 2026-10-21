@@ -9,6 +9,13 @@ type TransactionInput = {
   transaction_date: string;
 };
 
+type BudgetUpdate = {
+  category_id: string;
+  month: number;
+  year: number;
+  amount: number;
+};
+
 type SupabaseServer = Awaited<ReturnType<typeof createClient>>;
 
 const isValidDate = (value: unknown): value is string => {
@@ -68,7 +75,9 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const transactions = body.transactions as TransactionInput[];
-
+    const budgetUpdates: BudgetUpdate[] = Array.isArray(body.budgetUpdates)
+      ? body.budgetUpdates
+      : [];
     if (!Array.isArray(transactions) || transactions.length === 0) {
       return NextResponse.json(
         { error: "Data transaksi tidak valid." },
@@ -181,6 +190,100 @@ export async function POST(request: Request) {
         input_source: "ai",
       };
     });
+
+    // Batas yang dinaikkan user di modal konfirmasi (disimpan sebelum transaksinya)
+    // 1. Validasi bentuk data
+    for (const update of budgetUpdates) {
+      if (
+        typeof update?.category_id !== "string" ||
+        !categoryIds.includes(update.category_id) ||
+        typeof update.amount !== "number" ||
+        !Number.isFinite(update.amount) ||
+        update.amount <= 0 ||
+        !Number.isInteger(update.month) ||
+        update.month < 1 ||
+        update.month > 12 ||
+        !Number.isInteger(update.year)
+      ) {
+        return NextResponse.json(
+          { error: "Data perubahan budget tidak valid." },
+          { status: 400 },
+        );
+      }
+    }
+
+    // 2. Total batas setelah perubahan tidak boleh melebihi pemasukan periode itu
+    const updatesByPeriod = new Map<string, BudgetUpdate[]>();
+
+    for (const update of budgetUpdates) {
+      const key = `${update.year}-${update.month}`;
+      updatesByPeriod.set(key, [...(updatesByPeriod.get(key) ?? []), update]);
+    }
+
+    for (const updates of updatesByPeriod.values()) {
+      const { month, year } = updates[0];
+
+      const { data: budget } = await supabase
+        .from("budgets")
+        .select("id, income")
+        .eq("user_id", user.id)
+        .eq("month", month)
+        .eq("year", year)
+        .maybeSingle();
+
+      const income = Number(budget?.income ?? 0);
+
+      // Pemasukan belum diisi: batas total tidak dicek
+      if (!budget || income <= 0) continue;
+
+      const { data: rows } = await supabase
+        .from("budget_categories")
+        .select("category_id, amount")
+        .eq("budget_id", budget.id);
+
+      const limits = new Map(
+        (rows ?? []).map((row) => [row.category_id, Number(row.amount)]),
+      );
+      updates.forEach((u) => limits.set(u.category_id, u.amount));
+
+      const total = [...limits.values()].reduce((sum, v) => sum + v, 0);
+
+      if (total > income) {
+        return NextResponse.json(
+          { error: "Total batas melebihi pemasukan periode ini." },
+          { status: 400 },
+        );
+      }
+    }
+
+    // 3. Simpan
+    for (const update of budgetUpdates) {
+      const budgetId = await getOrCreateBudgetId(
+        supabase,
+        user.id,
+        update.month,
+        update.year,
+      );
+
+      const { error: limitError } = await supabase
+        .from("budget_categories")
+        .upsert(
+          {
+            budget_id: budgetId,
+            category_id: update.category_id,
+            amount: update.amount,
+          },
+          { onConflict: "budget_id,category_id" },
+        );
+
+      if (limitError) {
+        console.error("UPDATE BUDGET LIMIT:", limitError);
+        return NextResponse.json(
+          { error: "Gagal memperbarui batas budget." },
+          { status: 500 },
+        );
+      }
+    }
 
     const { data, error } = await supabase
       .from("transactions")

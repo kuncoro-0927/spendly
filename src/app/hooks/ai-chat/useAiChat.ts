@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { AiResult, Transaction } from "@/lib/receipt/receipt-types";
 import type { Category } from "@/lib/receipt/receipt-types";
-
+import { useBudgetCheck } from "../budget/useBudgetCheck";
+import { evaluateWarnings } from "@/lib/budget/limits";
 export function useAiChat() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -13,9 +14,26 @@ export function useAiChat() {
   const [saveError, setSaveError] = useState("");
   const [reply, setReply] = useState("");
 
+  const { warnings, periods } = useBudgetCheck(transactions);
+  const [raises, setRaises] = useState<Record<string, number>>({});
+
+  const setRaise = (key: string, amount: number | null) =>
+    setRaises((previous) => {
+      const next = { ...previous };
+      if (amount === null) delete next[key];
+      else next[key] = amount;
+      return next;
+    });
+
+  const { states: warningStates, blocked } = useMemo(
+    () => evaluateWarnings(warnings, periods, raises),
+    [warnings, periods, raises],
+  );
+
   const reset = () => {
     setTransactions([]);
     setCategories([]);
+    setRaises({});
     setExpandedIndex(null);
     setSaveError("");
   };
@@ -84,6 +102,10 @@ export function useAiChat() {
   const save = async () => {
     if (!transactions.length || saving) return;
 
+    if (blocked) {
+      setSaveError("Perbaiki batas budget yang ditandai sebelum menyimpan.");
+      return;
+    }
     if (
       transactions.some(
         (transaction) =>
@@ -107,6 +129,13 @@ export function useAiChat() {
           transactions: transactions.map((transaction) => ({
             ...transaction,
             description: transaction.description.trim(),
+          })),
+
+          budgetUpdates: warnings.map((w) => ({
+            category_id: w.category_id,
+            month: w.month,
+            year: w.year,
+            amount: warningStates[w.key].value,
           })),
         }),
       });
@@ -146,5 +175,9 @@ export function useAiChat() {
     updateTransaction,
     deleteTransaction,
     toggleExpanded,
+    warnings,
+    warningStates,
+    setRaise,
+    blocked,
   };
 }

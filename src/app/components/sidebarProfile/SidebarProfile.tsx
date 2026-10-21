@@ -8,9 +8,9 @@ import { IoIosArrowDown } from "react-icons/io";
 
 import { useUser } from "@/app/hooks/user/useUser";
 
-import TotalIncome from "../dashboard/TotalIncome";
-import TotalTabungan from "../dashboard/TotalTabungan";
-import TotalSpent from "../dashboard/TotalSpent";
+import TotalIncome from "./TotalIncome";
+import TotalTabungan from "./TotalTabungan";
+import TotalSpent from "./TotalSpent";
 export default function SidebarProfile() {
   const { name, email } = useUser();
 
@@ -49,7 +49,7 @@ export default function SidebarProfile() {
           type="button"
           onClick={() => setIsProfileOpen((prev) => !prev)}
           aria-expanded={isProfileOpen}
-          className={`flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition-all duration-200 cursor-pointer ${
+          className={`flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition-all duration-200 cursor-pointer shadow-sm ${
             isProfileOpen
               ? "border-orange bg-orange/5"
               : "border-transparent bg-white hover:border-black/20"
@@ -83,7 +83,7 @@ export default function SidebarProfile() {
               : "invisible -translate-y-2 scale-[0.98] opacity-0"
           }`}
         >
-          <div className="border-b border-gray-100 px-3 py-2">
+          <div className="border-b border-gray-100 px-3 py-3">
             <p className="text-xs text-gray-400">Signed in as</p>
             <p className="mt-1 truncate text-sm font-medium text-gray-800">
               {email}

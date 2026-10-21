@@ -13,6 +13,7 @@ import ItemList from "@/app/components/transactions/ItemList";
 import EditTransactionModal from "@/app/components/transactions/EditTransactionModal";
 import Skeleton from "@/app/components/ui/Skeleton";
 import DeleteTransactionModal from "@/app/components/transactions/DeleteTransactionModal";
+import CategoryChipsSkeleton from "@/app/components/transactions/CategoryChipsSkeleton";
 export default function TransactionsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -61,22 +62,29 @@ export default function TransactionsPage() {
       />
 
       {/* Filter kategori */}
-      <div className="mb-6 flex gap-2 overflow-x-auto scrollbar-hide">
-        {chips.map((chip) => (
-          <button
-            key={chip.id ?? "all"}
-            type="button"
-            onClick={() => setCategoryId(chip.id)}
-            aria-pressed={categoryId === chip.id}
-            className={`shrink-0 cursor-pointer rounded-full border px-3 py-1.5 text-xs duration-200 ${
-              categoryId === chip.id
-                ? "border-none bg-linear-to-r from-orange to-yellow text-white"
-                : "border-black/20 text-gray-600 hover:border-orange"
-            }`}
-          >
-            {chip.name}
-          </button>
-        ))}
+
+      <div className="mb-6">
+        {t.loading && t.categories.length === 0 ? (
+          <CategoryChipsSkeleton />
+        ) : (
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+            {chips.map((chip) => (
+              <button
+                key={chip.id ?? "all"}
+                type="button"
+                onClick={() => setCategoryId(chip.id)}
+                aria-pressed={categoryId === chip.id}
+                className={`shrink-0 cursor-pointer rounded-full border px-3 py-1.5 text-xs duration-200 ${
+                  categoryId === chip.id
+                    ? "border-transparent bg-linear-to-r from-orange to-yellow text-white"
+                    : "border-black/20 text-gray-600 hover:border-orange"
+                }`}
+              >
+                {chip.name}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {t.loading ? (

@@ -10,14 +10,14 @@ const navItems = [
   { href: "/transactions", label: "Transaksi", icon: PiReceiptLight },
   { href: "/budget", label: "Budget", icon: PiWalletLight },
   { href: "/analytics", label: "Analytics", icon: PiChartBarLight },
-  { href: "/pengaturan", label: "Pengaturan", icon: CiSettings },
+  { href: "/settings", label: "Pengaturan", icon: CiSettings },
 ];
 
 export default function SidebarNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="sticky hidden lg:block top-8 h-fit rounded-2xl bg-white p-3">
+    <nav className="sticky hidden lg:block top-8 h-fit rounded-2xl bg-white p-3 shadow-sm">
       <ul className="flex flex-col gap-1">
         <li className="mb-2 text-lg font-semibold">Spendly</li>
 
