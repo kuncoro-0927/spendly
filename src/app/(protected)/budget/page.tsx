@@ -17,7 +17,7 @@ export default function BudgetPage() {
   const [deleting, setDeleting] = useState<Category | null>(null);
 
   return (
-    <section className="flex-1 pb-52 lg:pb-6 p-6 bg-white lg:rounded-2xl shadow-md">
+    <section className="flex-1 pb-52 xl:pb-6 p-6 sm:px-20 md:px-28 xl:px-6 bg-white lg:rounded-2xl shadow-md">
       <BudgetHeader />
 
       <div className="max-w-5xl space-y-3">

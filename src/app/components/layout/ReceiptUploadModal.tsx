@@ -18,7 +18,7 @@ export default function ReceiptUploadModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex overflow-y-auto bg-black/40 p-4">
+    <div className="fixed inset-0 z-[99] flex overflow-y-auto bg-black/40 p-4">
       <div className="relative my-auto w-full max-w-[448px] mx-auto">
         {/* Mobile: di atas kartu, rata kanan. Desktop: di luar kanan kartu */}
         <div className="mb-2 flex justify-end sm:mb-0 sm:block">

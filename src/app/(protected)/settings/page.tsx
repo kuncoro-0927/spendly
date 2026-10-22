@@ -11,7 +11,7 @@ export default function SettingsPage() {
   const s = useSettings();
 
   return (
-    <div className="flex flex-col bg-white p-6 pb-52 lg:rounded-xl lg:pb-6 shadow-md">
+    <div className="flex flex-col bg-white p-6 sm:px-20 md:px-28 xl:px-6 pb-52 lg:rounded-xl xl:pb-6 shadow-md">
       <SettingsHeader
         avatarSrc={s.avatarSrc}
         onAvatarChange={s.changeAvatar}

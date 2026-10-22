@@ -30,7 +30,7 @@ export default function AiChatInput({
   const hasStatus = !!error || !!reply;
 
   return (
-    <div className="fixed bottom-6 left-1/2 z-50 flex w-full max-w-2xl -translate-x-1/2 flex-col gap-2 px-4">
+    <div className="fixed bottom-6 left-1/2 z-50 flex w-full max-w-2xl lg:max-w-4xl -translate-x-1/2 flex-col gap-2 px-4 sm:px-20 md:px-28">
       {/* status: loading / error / reply */}
       {hasStatus && (
         <div className="flex max-h-60 animate-[statusIn_.25s_ease-out] flex-col gap-3 overflow-y-auto rounded-3xl border border-black/10 bg-white/40 p-4 shadow-md backdrop-blur-md">

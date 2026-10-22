@@ -118,7 +118,7 @@ export default function ReceiptPreviewModal({
             type="button"
             onClick={save}
             disabled={saving || loading || transactions.length === 0}
-            className="flex-1 cursor-pointer rounded-xl bg-orange py-3 text-sm font-medium text-white duration-300 hover:-translate-y-0.5 hover:shadow-md disabled:opacity-50"
+            className="flex-1 cursor-pointer rounded-xl bg-linear-to-r from-orange to-yellow py-3 text-sm font-medium text-white duration-300 hover:-translate-y-0.5 hover:shadow-md disabled:opacity-50"
           >
             {saving ? "Menyimpan..." : "Simpan transaksi"}
           </button>

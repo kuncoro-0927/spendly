@@ -78,7 +78,7 @@ export default function NavBarMobile() {
   return (
     <header
       ref={ref}
-      className={`sticky top-0 z-99 border-b px-6 transition-all bg-white duration-300 lg:hidden ${
+      className={`sticky top-0 z-99 border-b px-6 sm:px-20 md:px-28 transition-all bg-white duration-300 xl:hidden ${
         scrolled
           ? "border-black/10 bg-white/40 shadow-sm backdrop-blur-md"
           : "border-transparent bg-transparent"
@@ -104,7 +104,7 @@ export default function NavBarMobile() {
       {/* Dropdown melayang */}
       <nav
         id="mobile-menu"
-        className={`absolute right-4 top-full mt-2 w-56 origin-top-right rounded-2xl border border-black/10 bg-white p-2 shadow-xl transition-all duration-200 ${
+        className={`absolute right-4 sm:right-20 md:right-28 top-full mt-2 w-56 origin-top-right rounded-2xl border border-black/10 bg-white p-2 shadow-xl transition-all duration-200 ${
           open
             ? "visible scale-100 opacity-100"
             : "invisible scale-95 opacity-0"

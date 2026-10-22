@@ -35,7 +35,7 @@ export default function Home() {
   const { categories, loading, summary } = useDashboard(month, year);
 
   return (
-    <section className="bg-white w-auto p-6 lg:rounded-xl pb-52 lg:pb-6 shadow-sm">
+    <section className="bg-white w-auto p-6 sm:px-20 md:px-28 xl:px-6 lg:rounded-xl pb-52 xl:pb-6 shadow-sm">
       {/* icon kategori */}
       <div className="flex items-stretch gap-3">
         <div className="btn-gradient-border flex items-center justify-center h-12 w-12 rounded-full">

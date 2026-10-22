@@ -27,7 +27,7 @@ export default function TotalCard({
         {/* label "Total pengeluaran" */}
         <Skeleton className="h-4 w-28" />
 
-        <div className="flex items-end justify-between gap-6">
+        <div className="flex items-end  justify-between gap-6">
           {/* jumlah dan "n transaksi" */}
           <div className="flex flex-col gap-1.5">
             <Skeleton className="h-8 w-36" />

@@ -47,7 +47,7 @@ export default function TransactionsPage() {
   ];
 
   return (
-    <div className="w-auto bg-white p-6 pb-52 lg:rounded-xl lg:pb-6 shadow-md">
+    <div className="w-auto bg-white p-6 sm:px-20 md:px-28 xl:px-6 pb-52 lg:rounded-xl xl:pb-6 shadow-md h-full">
       <TransactionsHeader
         month={month}
         year={year}

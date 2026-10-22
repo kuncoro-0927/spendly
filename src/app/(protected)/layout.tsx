@@ -32,8 +32,8 @@ export default async function ProtectedLayout({
 
   return (
     <PeriodProvider startDay={settings?.period_start_day ?? 1}>
-      <div className="min-h-screen flex flex-col lg:flex-row lg:gap-3 xl:p-8 xl:pb-40">
-        <div className="w-full  hidden lg:block max-w-[220px] shrink-0">
+      <div className="min-h-screen flex flex-col xl:flex-row  xl:gap-3 xl:p-8 xl:pb-40">
+        <div className="w-full  hidden xl:block max-w-[220px] shrink-0">
           <SidebarNav />
         </div>
 
@@ -41,7 +41,7 @@ export default async function ProtectedLayout({
         <GradientDefs />
         <main className="flex-1 min-w-0">{children}</main>
         <Toaster />
-        <div className="w-full hidden lg:block max-w-[220px] shrink-0">
+        <div className="w-full hidden xl:block max-w-[220px] shrink-0">
           <SidebarProfile />
         </div>
 
