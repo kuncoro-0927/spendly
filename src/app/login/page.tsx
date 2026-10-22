@@ -11,9 +11,9 @@ import LastSpendingLoginMock from "../components/auth/LastSpendingMock";
 import ButtonLoginGoogle from "../components/ui/ButtonLoginGoogle";
 import { toast } from "@/components/ui/toast";
 const inputClass =
-  "mt-2 w-full border border-black/20 rounded-lg text-xs bg-transparent py-2.5 pl-10 pr-3 outline-none";
+  "mt-2 w-full border border-black/20 rounded-lg text-sm bg-transparent py-2.5 pl-10 pr-3 outline-none";
 const labelClass =
-  "text-xs text-left bg-linear-to-r from-orange to-yellow bg-clip-text text-transparent font-medium";
+  "text-sm text-left bg-linear-to-r from-orange to-yellow bg-clip-text text-transparent font-medium";
 
 export default function LoginPage() {
   const {

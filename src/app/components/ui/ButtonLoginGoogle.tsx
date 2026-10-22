@@ -31,7 +31,7 @@ export default function ButtonLoginGoogle({ next = "/", onError }: Props) {
       type="button"
       onClick={handleGoogle}
       disabled={loading}
-      className="flex items-center gap-3 w-full lg:max-w-[80%] mx-auto mt-4 border border-black/20 rounded-lg justify-center text-center py-2.5 hover:-translate-y-0.5 hover:shadow-md duration-300 cursor-pointer"
+      className="flex items-center text-sm gap-3 w-full lg:max-w-[80%] mx-auto mt-4 border border-black/20 rounded-lg justify-center text-center py-2.5 hover:-translate-y-0.5 hover:shadow-md duration-300 cursor-pointer"
     >
       {loading ? (
         <span className="h-4 w-4 animate-spin rounded-full border-2 border-black/20 border-t-black" />
