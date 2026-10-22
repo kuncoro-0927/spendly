@@ -69,11 +69,10 @@ export default function InputAccount({
                   placeholder="Kosongkan kalau tidak ingin mengubah"
                   className="w-full rounded-lg border border-black/20 px-4 py-2 text-sm outline-none transition focus:border-orange"
                 />
+                {errors.password && (
+                  <p className="mt-1 text-xs text-red-500">{errors.password}</p>
+                )}
               </div>
-
-              {errors.password && (
-                <p className="mt-1 text-xs text-red-500">{errors.password}</p>
-              )}
 
               <div className="w-full">
                 <label className="mb-1 block text-sm  text-[#6c6c6c]">
@@ -88,11 +87,10 @@ export default function InputAccount({
                   onChange={(e) => onConfirmChange(e.target.value)}
                   className="w-full rounded-lg border border-black/20 px-4 py-2 text-sm outline-none transition focus:border-orange"
                 />
+                {errors.confirm && (
+                  <p className="mt-1 text-xs text-red-500">{errors.confirm}</p>
+                )}
               </div>
-
-              {errors.confirm && (
-                <p className="mt-1 text-xs text-red-500">{errors.confirm}</p>
-              )}
             </>
           ) : (
             <p className="mt-3 text-sm text-[#6c6c6c]">
@@ -102,13 +100,13 @@ export default function InputAccount({
           )}
 
           <div className="w-full">
-            <label className="mb-1 block text-sm  text-[#6c6c6c]">Logout</label>
+            <label className="mb-1 block text-sm  text-[#6c6c6c]">Keluar</label>
             <button
               onClick={onLogout}
               className="w-full flex items-center gap-2 text-center justify-center rounded-lg px-4 py-2 text-sm bg-red-100 border border-red-300 hover:-translate-y-0.5 hover:shadow-md duration-300 cursor-pointer"
             >
               <PiSignOutLight className="text-red-600" />
-              <span className="text-red-600">Logout</span>
+              <span className="text-red-600">Keluar</span>
             </button>
           </div>
 

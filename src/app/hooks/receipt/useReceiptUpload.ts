@@ -8,21 +8,21 @@ export function useReceiptUpload() {
     null,
   );
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
 
-  const openUpload = () => setShowUpload(true);
-
-  const closeUpload = () => {
-    if (!uploading) setShowUpload(false);
+  const openUpload = () => {
+    setUploadError("");
+    setShowUpload(true);
   };
 
-  const closePreview = () => setShowPreview(false);
-
-  const finishPreview = () => {
-    setShowPreview(false);
-    setReceiptResult(null);
+  const closeUpload = () => {
+    if (uploading) return;
+    setUploadError("");
+    setShowUpload(false);
   };
 
   const upload = async (file: File, onProgress: (value: number) => void) => {
+    setUploadError("");
     setUploading(true);
 
     let progress = 0;
@@ -32,6 +32,16 @@ export function useReceiptUpload() {
     }, 300);
 
     try {
+      const ALLOWED = ["image/jpeg", "image/png", "image/webp"];
+
+      if (!ALLOWED.includes(file.type)) {
+        throw new Error("Format harus JPG, PNG, atau WebP.");
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error("Ukuran gambar maksimal 5 MB.");
+      }
+
       const formData = new FormData();
       formData.append("file", file);
 
@@ -40,7 +50,7 @@ export function useReceiptUpload() {
         body: formData,
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
         throw new Error(data.error || "Gagal membaca nota.");
@@ -59,10 +69,24 @@ export function useReceiptUpload() {
       setReceiptResult(data);
       setShowUpload(false);
       setShowPreview(true);
+    } catch (err) {
+      // Pesan ini yang ditampilkan modal, lalu dilempar lagi supaya
+      // komponen Upload tetap tahu bahwa unggahannya gagal
+      setUploadError(
+        err instanceof Error ? err.message : "Gagal membaca nota.",
+      );
+      throw err;
     } finally {
       window.clearInterval(interval);
       setUploading(false);
     }
+  };
+
+  const closePreview = () => setShowPreview(false);
+
+  const finishPreview = () => {
+    setShowPreview(false);
+    setReceiptResult(null);
   };
 
   return {
@@ -74,5 +98,6 @@ export function useReceiptUpload() {
     closePreview,
     finishPreview,
     upload,
+    uploadError,
   };
 }

@@ -1,14 +1,20 @@
 "use client";
 
 import BasketballUpload, { type UploadHandler } from "./Upload";
-
+import { PiWarningLight } from "react-icons/pi";
 type Props = {
   open: boolean;
   onClose: () => void;
   onUpload: UploadHandler;
+  error?: string;
 };
 
-export default function ReceiptUploadModal({ open, onClose, onUpload }: Props) {
+export default function ReceiptUploadModal({
+  open,
+  onClose,
+  onUpload,
+  error,
+}: Props) {
   if (!open) return null;
 
   return (
@@ -33,6 +39,15 @@ export default function ReceiptUploadModal({ open, onClose, onUpload }: Props) {
             onUpload={onUpload}
             className="max-w-none"
           />
+          {error && (
+            <div
+              role="alert"
+              className="mt-3 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600"
+            >
+              <PiWarningLight className="mt-0.5 shrink-0 text-base" />
+              <span>{error}</span>
+            </div>
+          )}
         </div>
       </div>
     </div>

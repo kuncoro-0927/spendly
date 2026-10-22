@@ -2,6 +2,12 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { getCurrentPeriod } from "@/lib/period/period";
 import { usePeriodStartDay } from "@/lib/period/periodProvider";
+import {
+  showSuccess,
+  showError,
+  showInfo,
+} from "@/lib/notification/toastNotification";
+import { formatRupiahText } from "@/lib/transactions/display";
 export type Category = {
   id: string;
   user_id: string;
@@ -46,6 +52,18 @@ export const useBudget = (monthParam?: number, yearParam?: number) => {
 
   const remaining = Number(income || 0) - totalBudget;
 
+  // Pesan kalau total batas tidak valid, null kalau aman
+  const limitError = (() => {
+    const incomeValue = Number(income || 0);
+
+    if (totalBudget <= incomeValue) return null;
+
+    if (incomeValue <= 0) {
+      return "Isi pemasukan dulu. Total batas tidak boleh melebihi pemasukan.";
+    }
+
+    return `Total batas ${formatRupiahText(totalBudget)} melebihi pemasukan ${formatRupiahText(incomeValue)} sebesar ${formatRupiahText(totalBudget - incomeValue)}.`;
+  })();
   const getBudgetData = async () => {
     setLoading(true);
 
@@ -136,6 +154,10 @@ export const useBudget = (monthParam?: number, yearParam?: number) => {
   };
 
   const handleSave = async () => {
+    if (limitError) {
+      showError(limitError);
+      return;
+    }
     setSaving(true);
 
     try {
@@ -144,7 +166,7 @@ export const useBudget = (monthParam?: number, yearParam?: number) => {
       } = await supabase.auth.getUser();
 
       if (!user) {
-        alert("Silakan login terlebih dahulu.");
+        showError("Silakan login terlebih dahulu.");
         return;
       }
 
@@ -167,7 +189,7 @@ export const useBudget = (monthParam?: number, yearParam?: number) => {
       if (budgetError || !budget) {
         console.error("SAVE BUDGET:", budgetError?.message);
 
-        alert("Gagal menyimpan budget.");
+        showError("Gagal menyimpan budget.");
         return;
       }
 
@@ -186,8 +208,7 @@ export const useBudget = (monthParam?: number, yearParam?: number) => {
 
         if (categoryError) {
           console.error("SAVE BUDGET CATEGORIES:", categoryError.message);
-
-          alert("Budget tersimpan, tetapi kategori gagal disimpan.");
+          showInfo("Budget tersimpan, tetapi kategori gagal disimpan.");
 
           return;
         }
@@ -195,7 +216,7 @@ export const useBudget = (monthParam?: number, yearParam?: number) => {
 
       window.dispatchEvent(new Event("budget-updated"));
 
-      alert("Budget berhasil disimpan!");
+      showSuccess("Budget berhasil disimpan!");
     } finally {
       setSaving(false);
     }
@@ -205,7 +226,7 @@ export const useBudget = (monthParam?: number, yearParam?: number) => {
     const name = newCategoryName.trim();
 
     if (!name) {
-      alert("Nama kategori wajib diisi.");
+      showError("Nama kategori wajib diisi.");
       return;
     }
 
@@ -217,7 +238,7 @@ export const useBudget = (monthParam?: number, yearParam?: number) => {
       } = await supabase.auth.getUser();
 
       if (!user) {
-        alert("Silakan login terlebih dahulu.");
+        showError("Silakan login terlebih dahulu.");
         return;
       }
 
@@ -235,9 +256,9 @@ export const useBudget = (monthParam?: number, yearParam?: number) => {
         console.error("ADD CATEGORY:", error.message);
 
         if (error.code === "23505") {
-          alert("Kategori tersebut sudah ada.");
+          showInfo("Kategori tersebut sudah ada.");
         } else {
-          alert("Gagal menambahkan kategori.");
+          showError("Gagal menambahkan kategori.");
         }
 
         return;
@@ -262,51 +283,33 @@ export const useBudget = (monthParam?: number, yearParam?: number) => {
     }
   };
 
-  const handleDeleteCategory = async (category: Category) => {
-    const confirmed = window.confirm(`Hapus kategori "${category.name}"?`);
+  // Jumlah transaksi (semua periode) yang akan ikut terhapus. null = gagal diperiksa.
+  const countCategoryTransactions = async (
+    category: Category,
+  ): Promise<number | null> => {
+    const { count, error } = await supabase
+      .from("transactions")
+      .select("id", { count: "exact", head: true })
+      .eq("category_id", category.id);
 
-    if (!confirmed) return;
+    if (error) {
+      console.error("COUNT CATEGORY TRANSACTIONS:", error.message);
+      return null;
+    }
 
+    return count ?? 0;
+  };
+
+  // Mengembalikan pesan error, atau null kalau berhasil
+  const deleteCategory = async (category: Category): Promise<string | null> => {
     const {
       data: { user },
       error: userError,
     } = await supabase.auth.getUser();
 
-    if (userError || !user) {
-      alert("Silakan login terlebih dahulu.");
-      return;
-    }
+    if (userError || !user) return "Silakan login terlebih dahulu.";
 
-    const { data: budget, error: budgetError } = await supabase
-      .from("budgets")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("month", month)
-      .eq("year", year)
-      .maybeSingle();
-
-    if (budgetError) {
-      console.error("GET BUDGET:", budgetError.message);
-      alert("Gagal mengambil data budget.");
-      return;
-    }
-
-    // Hapus alokasi budget kategori terlebih dahulu
-    if (budget) {
-      const { error: budgetCategoryError } = await supabase
-        .from("budget_categories")
-        .delete()
-        .eq("budget_id", budget.id)
-        .eq("category_id", category.id);
-
-      if (budgetCategoryError) {
-        console.error("DELETE BUDGET CATEGORY:", budgetCategoryError.message);
-        alert("Budget kategori gagal dihapus.");
-        return;
-      }
-    }
-
-    // Hapus kategori
+    // Hapus kategori dulu. Transaksinya ikut terhapus lewat cascade di database.
     const { error: categoryError } = await supabase
       .from("categories")
       .delete()
@@ -315,11 +318,30 @@ export const useBudget = (monthParam?: number, yearParam?: number) => {
 
     if (categoryError) {
       console.error("DELETE CATEGORY:", categoryError.message);
-      alert("Kategori gagal dihapus.");
-      return;
+      return "Kategori gagal dihapus.";
     }
 
-    // Perbarui state lokal
+    // Bersihkan alokasi budget kategori ini di semua periode.
+    // Kalau gagal, hanya meninggalkan baris yatim yang tidak terlihat user.
+    const { data: budgets } = await supabase
+      .from("budgets")
+      .select("id")
+      .eq("user_id", user.id);
+
+    const budgetIds = (budgets ?? []).map((budget) => budget.id);
+
+    if (budgetIds.length > 0) {
+      const { error: allocationError } = await supabase
+        .from("budget_categories")
+        .delete()
+        .eq("category_id", category.id)
+        .in("budget_id", budgetIds);
+
+      if (allocationError) {
+        console.error("DELETE BUDGET CATEGORY:", allocationError.message);
+      }
+    }
+
     setCategories((prev) => prev.filter((item) => item.id !== category.id));
 
     setBudgetValues((prev) => {
@@ -328,8 +350,12 @@ export const useBudget = (monthParam?: number, yearParam?: number) => {
       return updated;
     });
 
-    // Perbarui dashboard dan sidebar
+    // Dashboard dan halaman Transaksi ikut diperbarui
     window.dispatchEvent(new Event("budget-updated"));
+    window.dispatchEvent(new Event("transactions-updated"));
+    showSuccess(`Kategori "${category.name}" dihapus.`);
+
+    return null;
   };
 
   return {
@@ -343,7 +369,7 @@ export const useBudget = (monthParam?: number, yearParam?: number) => {
 
     showAddCategory,
     setShowAddCategory,
-
+    limitError,
     newCategoryName,
     setNewCategoryName,
 
@@ -358,6 +384,7 @@ export const useBudget = (monthParam?: number, yearParam?: number) => {
     handleBudgetChange,
     handleSave,
     handleAddCategory,
-    handleDeleteCategory,
+    deleteCategory,
+    countCategoryTransactions,
   };
 };

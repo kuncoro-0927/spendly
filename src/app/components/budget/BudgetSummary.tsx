@@ -94,11 +94,11 @@ export function BudgetSummary({
         </div>
       </div>
 
-      {remaining < 0 && (
+      {/* {remaining < 0 && (
         <div className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-600">
           Total budget kamu melebihi pendapatan bulanan.
         </div>
-      )}
+      )} */}
     </section>
   );
 }

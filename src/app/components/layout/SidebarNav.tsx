@@ -9,7 +9,7 @@ const navItems = [
   { href: "/", label: "Dashboard", icon: CiGrid41 },
   { href: "/transactions", label: "Transaksi", icon: PiReceiptLight },
   { href: "/budget", label: "Budget", icon: PiWalletLight },
-  { href: "/analytics", label: "Analytics", icon: PiChartBarLight },
+  // { href: "/analytics", label: "Analytics", icon: PiChartBarLight },
   { href: "/settings", label: "Pengaturan", icon: CiSettings },
 ];
 

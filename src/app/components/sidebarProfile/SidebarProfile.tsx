@@ -11,8 +11,9 @@ import { useUser } from "@/app/hooks/user/useUser";
 import TotalIncome from "./TotalIncome";
 import TotalTabungan from "./TotalTabungan";
 import TotalSpent from "./TotalSpent";
+import Avatar from "../ui/Avatar";
 export default function SidebarProfile() {
-  const { name, email } = useUser();
+  const { name, email, avatarUrl } = useUser();
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -55,12 +56,11 @@ export default function SidebarProfile() {
               : "border-transparent bg-white hover:border-black/20"
           }`}
         >
-          <Image
-            src="/images/profile.svg"
-            className="rounded-xl"
-            width={40}
-            height={40}
-            alt="Profile"
+          <Avatar
+            src={avatarUrl}
+            className="rounded-lg"
+            name={name}
+            size={40}
           />
 
           <div className="flex min-w-0 flex-1 flex-col">
@@ -84,7 +84,7 @@ export default function SidebarProfile() {
           }`}
         >
           <div className="border-b border-gray-100 px-3 py-3">
-            <p className="text-xs text-gray-400">Signed in as</p>
+            <p className="text-xs text-gray-400">Masuk sebagai</p>
             <p className="mt-1 truncate text-sm font-medium text-gray-800">
               {email}
             </p>
@@ -96,7 +96,7 @@ export default function SidebarProfile() {
             className="mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-gray-600 transition-colors cursor-pointer hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <PiSignOutLight className="text-xl" />
-            <span>{isLoggingOut ? "Logging out..." : "Logout"}</span>
+            <span>{isLoggingOut ? "Otw keluar..." : "Keluar"}</span>
           </button>
         </div>
       </div>

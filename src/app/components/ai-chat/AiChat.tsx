@@ -46,6 +46,7 @@ export default function AiChat() {
         open={receipt.showUpload}
         onClose={receipt.closeUpload}
         onUpload={receipt.upload}
+        error={receipt.uploadError}
       />
 
       {receipt.showPreview && (

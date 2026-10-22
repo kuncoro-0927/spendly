@@ -1,18 +1,23 @@
 "use client";
 
+import { useState } from "react";
 import { BudgetHeader } from "../../components/budget/BudgetHeader";
 import { IncomeCard } from "../../components/budget/IncomeCard";
 import { BudgetCategoryList } from "../../components/budget/BudgetCategoryList";
 import { BudgetSummary } from "../../components/budget/BudgetSummary";
 import { AddCategoryModal } from "../../components/budget/AddCategoryModal";
 import { SaveBudgetButton } from "../../components/budget/SaveBudgetButton";
-import { useBudget } from "../../hooks/budget/useBudget";
+import DeleteCategoryModal from "../../components/budget/DeleteCategoryModal";
+import { useBudget, type Category } from "../../hooks/budget/useBudget";
 
 export default function BudgetPage() {
   const budget = useBudget();
 
+  // Kategori yang sedang akan dihapus. null = modal tertutup.
+  const [deleting, setDeleting] = useState<Category | null>(null);
+
   return (
-    <section className="flex-1 pb-52 lg:pb-6 p-6 bg-white lg:rounded-2xl">
+    <section className="flex-1 pb-52 lg:pb-6 p-6 bg-white lg:rounded-2xl shadow-md">
       <BudgetHeader />
 
       <div className="max-w-5xl space-y-3">
@@ -27,7 +32,7 @@ export default function BudgetPage() {
           budgetValues={budget.budgetValues}
           onBudgetChange={budget.handleBudgetChange}
           onAddCategory={() => budget.setShowAddCategory(true)}
-          onDeleteCategory={budget.handleDeleteCategory}
+          onDeleteCategory={setDeleting}
           loading={budget.loading}
         />
 
@@ -38,7 +43,16 @@ export default function BudgetPage() {
           loading={budget.loading}
         />
 
-        <SaveBudgetButton saving={budget.saving} onClick={budget.handleSave} />
+        {budget.limitError && !budget.loading && (
+          <p role="alert" className="text-sm text-red-500">
+            {budget.limitError}
+          </p>
+        )}
+        <SaveBudgetButton
+          saving={budget.saving}
+          onClick={budget.handleSave}
+          disabled={budget.loading || !!budget.limitError}
+        />
       </div>
 
       <AddCategoryModal
@@ -51,6 +65,16 @@ export default function BudgetPage() {
         onIconChange={budget.setNewCategoryIcon}
         onSubmit={budget.handleAddCategory}
       />
+
+      {deleting && (
+        <DeleteCategoryModal
+          key={deleting.id}
+          category={deleting}
+          loadUsage={() => budget.countCategoryTransactions(deleting)}
+          onClose={() => setDeleting(null)}
+          onConfirm={() => budget.deleteCategory(deleting)}
+        />
+      )}
     </section>
   );
 }

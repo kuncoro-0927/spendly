@@ -33,9 +33,9 @@ export default function SettingsHeader({
         </div>
       </div>
 
-      <div className="flex w-fit items-center gap-2 rounded-lg bg-orange/15 px-3 py-1.5 shadow-sm">
-        <PiInfoLight className="shrink-0 text-orange" />
-        <span className="text-sm text-orange">
+      <div className="flex w-fit items-center gap-2 rounded-lg bg-blue-100/70 px-3 py-1.5">
+        <PiInfoLight className="shrink-0 text-blue-500" />
+        <span className="text-sm text-blue-500">
           Perubahan pada profil ini berlaku di seluruh aplikasi.
         </span>
       </div>

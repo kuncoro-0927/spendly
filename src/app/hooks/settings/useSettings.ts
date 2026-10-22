@@ -4,12 +4,20 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
+import {
+  showSuccess,
+  showError,
+} from "@/lib/notification/toastNotification";
 
 const MAX_AVATAR_SIZE = 2 * 1024 * 1024;
 const AVATAR_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MIN_PASSWORD = 8;
 
-type Values = { name: string; email: string; day: number };
+type Values = {
+  name: string;
+  email: string;
+  day: number;
+};
 
 export type SettingsErrors = Partial<
   Record<"name" | "email" | "avatar" | "password" | "confirm", string>
@@ -38,6 +46,7 @@ export function useSettings() {
     email: "",
     day: 1,
   });
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [day, setDay] = useState(1);
@@ -55,39 +64,59 @@ export function useSettings() {
   const [message, setMessage] = useState<SettingsMessage>(null);
 
   const load = useCallback(async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    try {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
 
-    if (!user) {
+      if (userError) throw userError;
+
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      const { data: settings, error: settingsError } = await supabase
+        .from("user_settings")
+        .select("period_start_day")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (settingsError) throw settingsError;
+
+      const meta = user.user_metadata ?? {};
+
+      const loadedName =
+        meta.full_name ?? meta.name ?? user.email?.split("@")[0] ?? "";
+
+      const loadedDay = settings?.period_start_day ?? 1;
+
+      setUserId(user.id);
+
+      setInitial({
+        name: loadedName,
+        email: user.email ?? "",
+        day: loadedDay,
+      });
+
+      setName(loadedName);
+      setEmail(user.email ?? "");
+      setDay(loadedDay);
+      setAvatarUrl(meta.avatar_url ?? meta.picture ?? null);
+
+      setHasPassword(
+        user.identities?.some((identity) => identity.provider === "email") ??
+          true,
+      );
+
+      setPendingEmail(user.new_email ?? null);
+    } catch (error) {
+      console.error("LOAD SETTINGS:", error);
+      showError("Gagal memuat pengaturan akun.");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    const { data: settings } = await supabase
-      .from("user_settings")
-      .select("period_start_day")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    const meta = user.user_metadata ?? {};
-    const loadedName =
-      meta.full_name ?? meta.name ?? user.email?.split("@")[0] ?? "";
-    const loadedDay = settings?.period_start_day ?? 1;
-
-    setUserId(user.id);
-    setInitial({ name: loadedName, email: user.email ?? "", day: loadedDay });
-    setName(loadedName);
-    setEmail(user.email ?? "");
-    setDay(loadedDay);
-    setAvatarUrl(meta.avatar_url ?? meta.picture ?? null);
-    // Akun yang daftar lewat Google tidak punya sandi
-    setHasPassword(
-      user.identities?.some((identity) => identity.provider === "email") ??
-        true,
-    );
-    setPendingEmail(user.new_email ?? null);
-    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -100,6 +129,10 @@ export function useSettings() {
     if (!file) {
       setAvatarFile(null);
       setAvatarPreview(null);
+      setErrors((previous) => ({
+        ...previous,
+        avatar: undefined,
+      }));
       return;
     }
 
@@ -108,6 +141,8 @@ export function useSettings() {
         ...previous,
         avatar: "Format harus JPG, PNG, atau WebP.",
       }));
+
+      showError("Format foto harus JPG, PNG, atau WebP.");
       return;
     }
 
@@ -116,10 +151,16 @@ export function useSettings() {
         ...previous,
         avatar: "Ukuran maksimal 2 MB.",
       }));
+
+      showError("Ukuran foto maksimal 2 MB.");
       return;
     }
 
-    setErrors((previous) => ({ ...previous, avatar: undefined }));
+    setErrors((previous) => ({
+      ...previous,
+      avatar: undefined,
+    }));
+
     setAvatarFile(file);
     setAvatarPreview(URL.createObjectURL(file));
   };
@@ -135,8 +176,11 @@ export function useSettings() {
   const validate = () => {
     const next: SettingsErrors = {};
 
-    if (!name.trim()) next.name = "Nama wajib diisi.";
-    else if (name.trim().length > 50) next.name = "Maksimal 50 karakter.";
+    if (!name.trim()) {
+      next.name = "Nama wajib diisi.";
+    } else if (name.trim().length > 50) {
+      next.name = "Maksimal 50 karakter.";
+    }
 
     if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
       next.email = "Format email tidak valid.";
@@ -158,7 +202,11 @@ export function useSettings() {
     if (saving || !dirty) return;
 
     setMessage(null);
-    if (!validate()) return;
+
+    if (!validate()) {
+      showError("Periksa kembali data yang kamu masukkan.");
+      return;
+    }
 
     setSaving(true);
 
@@ -167,7 +215,7 @@ export function useSettings() {
     let avatarUploaded = false;
 
     try {
-      // 1. Foto profil
+      // 1. Upload foto profil
       let newAvatarUrl = avatarUrl;
 
       if (avatarFile) {
@@ -184,22 +232,27 @@ export function useSettings() {
           failures.push("Foto profil gagal diunggah.");
         } else {
           const { data } = supabase.storage.from("avatars").getPublicUrl(path);
-          // Parameter v mencegah browser menampilkan foto lama dari cache
+
           newAvatarUrl = `${data.publicUrl}?v=${Date.now()}`;
           avatarUploaded = true;
         }
       }
 
-      // 2. Nama dan foto (disimpan di metadata user)
+      // 2. Simpan nama dan foto profil
       if (name.trim() !== initial.name || newAvatarUrl !== avatarUrl) {
         const { error } = await supabase.auth.updateUser({
-          data: { full_name: name.trim(), avatar_url: newAvatarUrl },
+          data: {
+            full_name: name.trim(),
+            avatar_url: newAvatarUrl,
+          },
         });
 
-        if (error) failures.push("Nama atau foto gagal disimpan.");
+        if (error) {
+          failures.push("Nama atau foto gagal disimpan.");
+        }
       }
 
-      // 3. Email: berubah setelah dikonfirmasi lewat email
+      // 3. Ubah email
       if (email.trim() !== initial.email) {
         const { error } = await supabase.auth.updateUser({
           email: email.trim(),
@@ -209,88 +262,133 @@ export function useSettings() {
           failures.push("Email gagal diubah. Mungkin sudah dipakai akun lain.");
         } else {
           notes.push(
-            "Cek email untuk konfirmasi, email baru aktif setelah dikonfirmasi.",
+            "Cek email untuk konfirmasi. Email baru aktif setelah dikonfirmasi.",
           );
         }
       }
 
-      // 4. Tanggal gajian
+      // 4. Simpan tanggal gajian
       if (day !== initial.day) {
-        const { error } = await supabase
-          .from("user_settings")
-          .upsert(
-            { user_id: userId, period_start_day: day },
-            { onConflict: "user_id" },
-          );
+        const { error } = await supabase.from("user_settings").upsert(
+          {
+            user_id: userId,
+            period_start_day: day,
+          },
+          {
+            onConflict: "user_id",
+          },
+        );
 
-        if (error) failures.push("Tanggal gajian gagal disimpan.");
+        if (error) {
+          failures.push("Tanggal gajian gagal disimpan.");
+        }
       }
 
-      // 5. Sandi
+      // 5. Ubah sandi
       if (password) {
-        const { error } = await supabase.auth.updateUser({ password });
+        const { error } = await supabase.auth.updateUser({
+          password,
+        });
 
-        if (error) failures.push(passwordError(error.message));
-        else {
+        if (error) {
+          failures.push(passwordError(error.message));
+        } else {
           setPassword("");
           setConfirm("");
         }
       }
 
+      // Bersihkan preview foto jika upload berhasil
       if (avatarUploaded) {
         if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+
         setAvatarFile(null);
         setAvatarPreview(null);
       }
 
-      await load(); // muat ulang nilai terbaru dari Supabase
+      // Muat ulang data terbaru
+      await load();
 
-      // Sidebar dan halaman lain ikut diperbarui (termasuk tanggal gajian
-      // di PeriodProvider, yang nilainya datang dari layout server)
       window.dispatchEvent(new Event("profile-updated"));
       router.refresh();
 
-      setMessage(
-        failures.length
-          ? { type: "error", text: failures.join(" ") }
-          : {
-              type: "success",
-              text: ["Perubahan tersimpan.", ...notes].join(" "),
-            },
-      );
+      if (failures.length > 0) {
+        showError(failures.join(" "));
+      } else if (notes.length > 0) {
+        showSuccess(`Perubahan berhasil disimpan. ${notes.join(" ")}`);
+      } else {
+        showSuccess("Perubahan berhasil disimpan.");
+      }
     } catch (error) {
       console.error("SAVE SETTINGS:", error);
-      setMessage({ type: "error", text: "Terjadi kesalahan saat menyimpan." });
+
+      showError(
+        failures.length > 0
+          ? failures.join(" ")
+          : "Terjadi kesalahan saat menyimpan pengaturan.",
+      );
     } finally {
       setSaving(false);
     }
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
-    router.replace("/login");
-    router.refresh();
+    try {
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        showError("Gagal keluar dari akun. Silakan coba lagi.");
+        return;
+      }
+
+      showSuccess("Berhasil keluar dari akun.");
+
+      router.replace("/login");
+      router.refresh();
+    } catch (error) {
+      console.error("LOGOUT:", error);
+      showError("Terjadi kesalahan saat keluar dari akun.");
+    }
   };
 
-  // Mengembalikan pesan error, atau null kalau berhasil
   const deleteAccount = async (): Promise<string | null> => {
     setDeleting(true);
 
     try {
-      const response = await fetch("/api/account", { method: "DELETE" });
+      const response = await fetch("/api/account", {
+        method: "DELETE",
+      });
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
-        return (data.error as string) || "Gagal menghapus akun.";
+
+        const error = (data.error as string) || "Gagal menghapus akun.";
+
+        showError(error);
+        return error;
       }
 
-      await supabase.auth.signOut({ scope: "local" });
+      const { error: signOutError } = await supabase.auth.signOut({
+        scope: "local",
+      });
+
+      if (signOutError) {
+        console.error("SIGN OUT:", signOutError);
+      }
+
+      showSuccess("Akun berhasil dihapus.");
+
       router.replace("/login");
       router.refresh();
+
       return null;
     } catch (error) {
       console.error("DELETE ACCOUNT:", error);
-      return "Gagal menghubungi server.";
+
+      const errorMessage = "Gagal menghubungi server.";
+      showError(errorMessage);
+
+      return errorMessage;
     } finally {
       setDeleting(false);
     }

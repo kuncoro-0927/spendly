@@ -55,34 +55,36 @@ export default function InputProfile({
             )}
           </div>
 
-          <div className=" w-full">
-            <label className="mb-1 block text-sm  text-[#6c6c6c]">
+          <div className="w-full">
+            <label className="mb-1 block text-sm text-[#6c6c6c]">
               Alamat Email
             </label>
 
-            {loading ? (
-              <div className="flex items-center gap-3">
-                <Skeleton className="h-9 w-full shrink-0 rounded-lg" />
-              </div>
-            ) : (
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => onEmailChange(e.target.value)}
-                placeholder="Contoh: johndoe@gmail.com"
-                maxLength={50}
-                className="w-full rounded-lg border border-black/20 px-4 py-2 text-sm outline-none transition focus:border-orange"
-              />
-            )}
-            {errors.email && (
-              <p className="mt-1 text-xs text-red-500">{errors.email}</p>
-            )}
-            {pendingEmail && (
-              <p className="mt-1 text-xs text-orange">
-                Menunggu konfirmasi untuk {pendingEmail}. Cek kotak masuk
-                emailmu.
-              </p>
-            )}
+            <div className="relative w-full">
+              {loading ? (
+                <Skeleton className="h-9 w-full rounded-lg" />
+              ) : (
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => onEmailChange(e.target.value)}
+                  placeholder="Contoh: johndoe@gmail.com"
+                  maxLength={50}
+                  className="w-full rounded-lg border border-black/20 px-4 py-2 text-sm outline-none transition focus:border-orange"
+                />
+              )}
+
+              {errors.email && (
+                <p className="absolute left-0 top-full z-10 mt-1 w-full text-xs text-red-500">{errors.email}</p>
+              )}
+
+              {pendingEmail && (
+                <p className="absolute left-0 top-full z-10 mt-1 w-full text-xs text-green-600">
+                  Menunggu konfirmasi untuk {pendingEmail}. Cek kotak masuk
+                  emailmu.
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </div>

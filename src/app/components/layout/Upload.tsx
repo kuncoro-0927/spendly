@@ -582,7 +582,7 @@ function UploadRow({ item }: { item: UploadItem }) {
   return (
     <li
       ref={ref}
-      className="flex items-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-[0_6px_20px_-6px_rgba(15,23,42,0.18)]"
+      className="flex items-center gap-3 rounded-2xl bg-white px-4 py-3 "
     >
       <FileIcon ext={getExt(item.file.name)} className="h-7 w-6 shrink-0" />
       <div className="min-w-0 flex-1">
