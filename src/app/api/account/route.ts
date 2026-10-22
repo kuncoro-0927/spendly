@@ -16,20 +16,32 @@ export async function DELETE() {
 
     const admin = createAdminClient();
 
-    // Hapus file foto profil (kalau ada)
-    const { data: files } = await admin.storage.from("avatars").list(user.id);
+    // Hapus file foto profil (kalau ada). Berhenti di sini kalau gagal,
+    // karena user yang masih punya file di Storage tidak bisa dihapus.
+    const { data: files, error: listError } = await admin.storage
+      .from("avatars")
+      .list(user.id);
+
+    if (listError) throw new Error(`Storage list: ${listError.message}`);
 
     if (files?.length) {
-      await admin.storage
+      const { error: removeError } = await admin.storage
         .from("avatars")
         .remove(files.map((file) => `${user.id}/${file.name}`));
+
+      if (removeError) {
+        throw new Error(`Storage remove: ${removeError.message}`);
+      }
     }
 
     // Semua tabel (budgets, transactions, categories, user_settings, dan
     // budget_categories lewat budgets) memakai on delete cascade ke auth.users,
     // jadi seluruh datanya ikut terhapus.
-    const { error } = await admin.auth.admin.deleteUser(user.id);
-    if (error) throw error;
+    const { error: deleteError } = await admin.auth.admin.deleteUser(user.id);
+
+    if (deleteError) {
+      throw new Error(`Delete user: ${deleteError.message}`);
+    }
 
     return NextResponse.json({ message: "Akun dihapus." });
   } catch (error) {
