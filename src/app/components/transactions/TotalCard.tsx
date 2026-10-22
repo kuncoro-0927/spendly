@@ -56,7 +56,11 @@ export default function TotalCard({
             </span>
           </div>
 
-          <span className="text-xs text-white">{count} transaksi</span>
+          <div className="text-xs text-white flex items-center gap-1">
+            <span> {count} </span>
+            {""}
+            <span>transaksi</span>
+          </div>
         </div>
 
         <ComparisonNote
