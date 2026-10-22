@@ -85,7 +85,7 @@ export default function NavBarMobile() {
       }`}
     >
       <div className="flex h-16 items-center justify-between">
-        <Link href="/dashboard" className="text-lg font-semibold">
+        <Link href="/" className="text-lg font-semibold">
           Gemi
         </Link>
 
