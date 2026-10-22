@@ -24,7 +24,7 @@ export function BudgetCategoryItem({
   onDelete,
 }: BudgetCategoryItemProps) {
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-xl border border-black/10 p-3 sm:flex-nowrap">
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-xl border border-black/20 p-3 sm:flex-nowrap">
       <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-linear-to-r from-orange/15 to-yellow/15">
         <Icon
           icon={category.icon || "ph:house-light"}
@@ -54,7 +54,7 @@ export function BudgetCategoryItem({
             onChange(category.id, newValue);
           }}
           placeholder="0"
-          className="w-full rounded-xl border border-gray-200 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-yellow"
+          className="w-full rounded-lg lg:rounded-xl border border-black/10 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-yellow"
         />
       </div>
 

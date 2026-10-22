@@ -27,11 +27,11 @@ export default function InputProfile({
         <div className="flex flex-col">
           <span className="font-medium">Profil</span>
           <span className="text-sm text-[#6c6c6c]">
-            Lorem ipsum dolor sit amet consectetur.
+            Kelola informasi pribadi dan pengaturan akunmu.
           </span>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           <div className=" w-full">
             <label className="mb-1 block text-sm  text-[#6c6c6c]">Nama</label>
 
@@ -75,11 +75,19 @@ export default function InputProfile({
               )}
 
               {errors.email && (
-                <p className="absolute left-0 top-full z-10 mt-1 w-full text-xs text-red-500">{errors.email}</p>
+                <p
+                  className={`text-xs text-red-500 ${
+                    pendingEmail
+                      ? "mt-1"
+                      : "absolute left-0 top-full z-10 mt-1 w-full"
+                  }`}
+                >
+                  {errors.email}
+                </p>
               )}
 
               {pendingEmail && (
-                <p className="absolute left-0 top-full z-10 mt-1 w-full text-xs text-green-600">
+                <p className="mb-0 mt-1 text-xs text-green-600">
                   Menunggu konfirmasi untuk {pendingEmail}. Cek kotak masuk
                   emailmu.
                 </p>

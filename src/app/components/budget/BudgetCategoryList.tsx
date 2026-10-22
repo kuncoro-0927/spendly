@@ -62,7 +62,7 @@ export function BudgetCategoryList({
         <button
           type="button"
           onClick={onAddCategory}
-          className="flex cursor-pointer items-center gap-2 rounded-xl bg-linear-to-r from-orange via-90%  to-yellow to-100% px-4 py-2.5 text-sm text-white transition duration-300 hover:-translate-y-0.5 hover:shadow-sm"
+          className="flex cursor-pointer items-center gap-2 rounded-lg lg:rounded-xl bg-linear-to-r from-orange via-90%  to-yellow to-100% px-4 py-2.5 text-sm text-white transition duration-300 hover:-translate-y-0.5 hover:shadow-sm"
         >
           <LuPlus size={14} />
           <span className="hidden lg:block">Tambah kategori</span>

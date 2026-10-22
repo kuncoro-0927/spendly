@@ -45,10 +45,9 @@ export default function NavBarMobile() {
   }, []);
   const navItems = [
     { href: "/", label: "Dashboard", icon: CiGrid41 },
-    { href: "/transaksi", label: "Transaksi", icon: PiReceiptLight },
+    { href: "/transactions", label: "Transaksi", icon: PiReceiptLight },
     { href: "/budget", label: "Budget", icon: PiWalletLight },
-    { href: "/analytics", label: "Analytics", icon: PiChartBarLight },
-    { href: "/pengaturan", label: "Pengaturan", icon: CiSettings },
+    { href: "/settings", label: "Pengaturan", icon: CiSettings },
   ];
   return (
     <header

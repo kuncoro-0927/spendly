@@ -14,11 +14,11 @@ export default function InputPreference({ day, loading, onChange }: Props) {
         <div className="flex flex-col">
           <span className="font-medium">Preferensi Keuangan</span>
           <span className="text-sm text-[#6c6c6c]">
-            Lorem ipsum dolor sit amet consectetur.
+            Atur tanggal gajian sesuai kebutuhanmu.
           </span>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           <div className="w-full relative">
             {/* <label className="mb-1 block text-sm  text-[#6c6c6c]">
               Tanggal mulai periode anggaran

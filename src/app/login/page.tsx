@@ -8,7 +8,8 @@ import GridBackground from "../components/auth/GridBackground";
 import BudgetLoginMock from "../components/auth/BudgetMock";
 import BudgetCategoryMock from "../components/auth/TotalBalanceMock";
 import LastSpendingLoginMock from "../components/auth/LastSpendingMock";
-
+import ButtonLoginGoogle from "../components/ui/ButtonLoginGoogle";
+import { toast } from "@/components/ui/toast";
 const inputClass =
   "mt-2 w-full border border-black/20 rounded-lg text-xs bg-transparent py-2.5 pl-10 pr-3 outline-none";
 const labelClass =
@@ -153,26 +154,27 @@ export default function LoginPage() {
               disabled={loading}
               className="col-span-full bg-linear-to-r from-orange to-yellow text-white py-2.5 rounded-lg text-sm mt-4 hover:-translate-y-0.5 hover:shadow-md cursor-pointer duration-300 disabled:opacity-60"
             >
-              {loading ? "..." : isLogin ? "Masuk" : "Daftar"}
+              {loading ? "Mohon tunggu" : isLogin ? "Masuk" : "Daftar"}
             </button>
           </div>
         </form>
 
-        <div className="flex items-center gap-3 max-w-[80%] w-full mx-auto mt-4">
+        <div className="flex items-center gap-3 lg:max-w-[80%] w-full mx-auto mt-4">
           <div className="flex border-[0.5px] border-black/10 w-full"></div>
           <span className="shrink-0 text-sm text-[#6c6c6c]">Atau</span>
           <div className="flex border-[0.5px] border-black/10 w-full"></div>
         </div>
 
-        <button
-          type="button"
-          className="flex items-center gap-3 max-w-[80%] mx-auto mt-4 border border-black/20 rounded-lg w-full justify-center text-center py-2.5 hover:-translate-y-0.5 hover:shadow-md duration-300 cursor-pointer"
-        >
-          <FcGoogle />
-          <span className="text-sm text-[#6c6c6c]">
-            Lanjutkan dengan Google
-          </span>
-        </button>
+        <ButtonLoginGoogle
+          next="/dashboard"
+          onError={(message) =>
+            toast.add({
+              title: "Gagal masuk dengan Google",
+              description: message,
+              type: "error",
+            })
+          }
+        />
       </div>
 
       {/* panel kanan: sama persis seperti sekarang */}

@@ -48,7 +48,7 @@ export function BudgetSummary({
       <h2 className="mb-5 font-semibold text-gray-900">Ringkasan Budget</h2>
 
       <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto scrollbar-hide [&>*]:w-[60%] [&>*]:shrink-0 [&>*]:snap-start lg:grid lg:grid-cols-3 lg:gap-4 lg:snap-none lg:overflow-visible lg:[&>*]:w-auto">
-        <div className="rounded-xl border border-black/10 p-4">
+        <div className="rounded-xl border border-black/20 p-4">
           <p className="flex items-center gap-2 text-base font-medium text-green-600">
             <span className="rounded-lg bg-green-50 p-2">
               <LuArrowDownToLine />
@@ -60,7 +60,7 @@ export function BudgetSummary({
           <span className="text-xs text-[#6c6c6c]">Lorem, ipsum dolor.</span>
         </div>
 
-        <div className="rounded-xl border border-black/10 p-4">
+        <div className="rounded-xl border border-black/20 p-4">
           <p className="flex items-center gap-2 text-base font-medium text-red-600">
             <span className="rounded-lg bg-red-50 p-2">
               <LuChartNoAxesColumnIncreasing />
@@ -74,7 +74,7 @@ export function BudgetSummary({
           <span className="text-xs text-[#6c6c6c]">Lorem, ipsum dolor.</span>
         </div>
 
-        <div className="rounded-xl border border-black/10 p-4">
+        <div className="rounded-xl border border-black/20 p-4">
           <p className="flex items-center gap-2 text-base font-medium text-blue-600">
             <span className="rounded-lg bg-blue-50 p-2">
               <TbMoneybag />

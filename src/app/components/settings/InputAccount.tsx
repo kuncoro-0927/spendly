@@ -49,11 +49,11 @@ export default function InputAccount({
         <div className="flex flex-col">
           <span className="font-medium">Keamanan Akun</span>
           <span className="text-sm text-[#6c6c6c]">
-            Lorem ipsum dolor sit amet consectetur.
+            Kelola kata sandi dan jaga keamanan akunmu.
           </span>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           {hasPassword ? (
             <>
               <div className="w-full">
