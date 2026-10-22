@@ -166,7 +166,7 @@ export default function LoginPage() {
         </div>
 
         <ButtonLoginGoogle
-          next="/dashboard"
+          next="/"
           onError={(message) =>
             toast.add({
               title: "Gagal masuk dengan Google",
